@@ -10,6 +10,8 @@ use App\Models\Student;
 use App\Models\Badge;
 use App\Models\Announcement;
 use App\Models\ParentSetting;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\LearningController;
 
 class DatabaseSeeder extends Seeder
@@ -47,6 +49,7 @@ class DatabaseSeeder extends Seeder
                         'difficulty' => $tData['difficulty'],
                         'video_title' => $tData['video_title'],
                         'video_desc' => $tData['video_desc'],
+                        'video_url' => $tData['video_url'] ?? null,
                         'micro_steps' => $tData['micro_steps']
                     ]
                 );
@@ -140,5 +143,88 @@ class DatabaseSeeder extends Seeder
                 'study_time' => '19:00'
             ]
         );
+
+        // 7. Seed Users with Roles (Siswa, Guru, Orang Tua)
+        $users = [
+            [
+                'name' => 'Doni Pratama',
+                'email' => 'siswa@sdsmadani.sch.id',
+                'username' => 'siswa',
+                'password' => Hash::make('password123'),
+                'role' => 'siswa',
+                'avatar' => '🚀',
+                'phone' => '081234567890'
+            ],
+            [
+                'name' => 'Siti Aisyah',
+                'email' => 'siti@sdsmadani.sch.id',
+                'username' => 'siti',
+                'password' => Hash::make('password123'),
+                'role' => 'siswa',
+                'avatar' => '🦊',
+                'phone' => '081234567891'
+            ],
+            [
+                'name' => 'Ahmad Fauzi',
+                'email' => 'ahmad@sdsmadani.sch.id',
+                'username' => 'ahmad',
+                'password' => Hash::make('password123'),
+                'role' => 'siswa',
+                'avatar' => '🦁',
+                'phone' => '081234567892'
+            ],
+            [
+                'name' => 'Budi Santoso',
+                'email' => 'budi@sdsmadani.sch.id',
+                'username' => 'budi',
+                'password' => Hash::make('password123'),
+                'role' => 'siswa',
+                'avatar' => '🐼',
+                'phone' => '081234567893'
+            ],
+            [
+                'name' => 'Rina Wijaya',
+                'email' => 'rina@sdsmadani.sch.id',
+                'username' => 'rina',
+                'password' => Hash::make('password123'),
+                'role' => 'siswa',
+                'avatar' => '🐱',
+                'phone' => '081234567894'
+            ],
+            [
+                'name' => 'Nadia Safira',
+                'email' => 'nadia@sdsmadani.sch.id',
+                'username' => 'nadia',
+                'password' => Hash::make('password123'),
+                'role' => 'siswa',
+                'avatar' => '🦄',
+                'phone' => '081234567895'
+            ],
+            [
+                'name' => 'Ibu Rahmawati, S.Pd. (Guru)',
+                'email' => 'guru@sdsmadani.sch.id',
+                'username' => 'guru',
+                'password' => Hash::make('password123'),
+                'role' => 'guru',
+                'avatar' => '👩‍🏫',
+                'phone' => '081298765432'
+            ],
+            [
+                'name' => 'Bunda Doni Pratama (Orang Tua)',
+                'email' => 'orangtua@sdsmadani.sch.id',
+                'username' => 'orangtua',
+                'password' => Hash::make('password123'),
+                'role' => 'orang_tua',
+                'avatar' => '👩‍👧',
+                'phone' => '081345678901'
+            ]
+        ];
+
+        foreach ($users as $userData) {
+            User::updateOrCreate(
+                ['email' => $userData['email']],
+                $userData
+            );
+        }
     }
 }

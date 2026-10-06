@@ -3,27 +3,45 @@
 @section('title', 'Portal Orang Tua | SDS Madani SD Kelas 4-6')
 
 @section('content')
+<!-- Role Status Banner -->
+<div class="role-status-banner role-status-parent" style="margin-bottom: 2rem;">
+    <div class="role-status-content">
+        <span class="role-status-icon">👨‍👩‍👧</span>
+        <div>
+            <strong>Portal Pendampingan Orang Tua:</strong> Masuk sebagai <b>{{ Auth::user()->name ?? 'Bunda Doni Pratama' }}</b>. Anda memiliki akses kendali waktu layar dan laporan perkembangan ananda <b>Doni Pratama</b>.
+        </div>
+    </div>
+    <div class="role-status-actions">
+        <button class="btn btn-primary btn-sm" onclick="openPinModal('tambah')">
+            ⏱️ Tambah Screen Time
+        </button>
+    </div>
+</div>
+
 <div class="page-header" style="margin-bottom: 2rem;">
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
         <div>
             <h1 style="font-family: var(--font-heading); font-size: 2.2rem; color: white;">
-                👨‍👩‍👧 Portal Pendampingan Orang Tua
+                👨‍👩‍👧 Portal Pendampingan Orang Tua Murid
             </h1>
             <p style="color: var(--text-muted); font-size: 1rem;">
                 Pantau perkembangan belajar ananda <strong style="color: white;">{{ $childProfile['name'] }}</strong> ({{ $childProfile['class'] }}), atur batas waktu layar harian, dan atur jadwal pengingat rutin.
             </p>
         </div>
-        <div>
+        <div style="display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap;">
             <span class="badge-grade" style="background: #10b981; font-size: 0.8rem; padding: 0.35rem 0.8rem;">
                 Wali Kelas: {{ $childProfile['wali_kelas'] }}
             </span>
+            <a href="{{ route('home') }}" class="btn btn-outline btn-sm">
+                📚 Intip Materi Siswa
+            </a>
         </div>
     </div>
 </div>
 
 <div class="parent-dashboard-grid" style="margin-bottom: 2.5rem;">
     <!-- 1. Laporan Perkembangan Anak (Nilai & Keaktifan 5 Mapel) -->
-    <div class="glass-panel">
+    <div class="glass-panel" id="subjectProgressSection">
         <h3 style="font-family: var(--font-heading); font-size: 1.3rem; color: white; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
             <span>📈</span> Laporan Nilai & Penguasaan Mata Pelajaran
         </h3>
@@ -31,7 +49,7 @@
         <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
             @foreach($subjectProgress as $sp)
             <div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.35rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
                     <span style="font-weight: 600; color: white;">{{ $sp['subject'] }}</span>
                     <span style="font-weight: 700; color: {{ $sp['color'] }};">
                         Nilai {{ $sp['score'] }} ({{ $sp['status'] }})
@@ -55,7 +73,7 @@
     </div>
 
     <!-- 2. Batas Waktu Penggunaan Harian (Screen Time Limiter) -->
-    <div class="screen-time-controller">
+    <div class="screen-time-controller" id="screenTimeController">
         <h3 style="font-family: var(--font-heading); font-size: 1.3rem; color: white; display: flex; align-items: center; gap: 0.5rem;">
             <span>⏱️</span> Batas Waktu Penggunaan Harian (Screen Time)
         </h3>
@@ -83,11 +101,11 @@
             <span>Batas: 45 Menit</span>
         </div>
 
-        <div style="display: flex; gap: 0.8rem; margin-top: 1rem;">
-            <button class="btn btn-outline btn-sm" style="flex: 1;" onclick="openPinModal('tambah')">
+        <div style="display: flex; gap: 0.8rem; margin-top: 1rem; flex-wrap: wrap;">
+            <button class="btn btn-outline btn-sm" style="flex: 1; min-width: 130px; justify-content: center;" onclick="openPinModal('tambah')">
                 ➕ Tambah 15 Menit
             </button>
-            <button class="btn btn-accent btn-sm" style="flex: 1;" onclick="openPinModal('kunci')">
+            <button class="btn btn-accent btn-sm" style="flex: 1; min-width: 130px; justify-content: center;" onclick="openPinModal('kunci')">
                 🔒 Kunci Aplikasi Sekarang
             </button>
         </div>
@@ -97,7 +115,7 @@
 </div>
 
 <!-- 3. Notifikasi Pengingat Belajar Rutin (WhatsApp / Push Notification Simulation) -->
-<div class="glass-panel">
+<div class="glass-panel" id="notifWaSection">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
         <div>
             <h3 style="font-family: var(--font-heading); font-size: 1.3rem; color: white; display: flex; align-items: center; gap: 0.5rem;">
@@ -112,7 +130,7 @@
         </button>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    <div class="parent-notif-grid">
         <!-- Pengaturan Jam Belajar Rutin -->
         <div style="background: rgba(15,23,42,0.8); border: 1px solid var(--border-glass); border-radius: 16px; padding: 1.4rem;">
             <h4 style="font-size: 1rem; color: white; margin-bottom: 1rem;">⏰ Jadwal Belajar Harian Doni:</h4>

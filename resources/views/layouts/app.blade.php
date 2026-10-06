@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'SDS Madani E-Learning SD Kelas 4-6')</title>
     <meta name="description" content="Aplikasi Pembelajaran Interaktif SDS Madani Kelas 4-6: Matematika, IPA, IPS, Bahasa Indonesia, Bahasa Inggris dengan Gamifikasi, Kuis, Portal Guru & Orang Tua.">
@@ -23,93 +23,403 @@
     <!-- Main Navigation Bar -->
     <header class="app-header">
         <div class="nav-container">
+            <!-- Brand Logo -->
             <div class="nav-brand">
-                <a href="{{ route('home') }}" class="brand-link">
+                <a href="{{ route('home') }}" class="brand-link" title="Beranda SDS Madani">
                     <span class="brand-icon">🚀</span>
                     <span class="brand-text">SDS MADANI</span>
                     <span class="badge-grade">SD KELAS 4-6</span>
                 </a>
             </div>
 
+            <!-- Primary Navigation Menu (Desktop) -->
             <nav class="nav-menu" id="primaryNavMenu">
-                <a href="{{ route('home') }}" class="nav-item {{ request()->routeIs('home') ? 'active' : '' }}">
-                    <span class="icon">🏠</span> Beranda
-                </a>
-                <a href="{{ route('learning.index') }}" class="nav-item {{ request()->routeIs('learning.*') ? 'active' : '' }}">
-                    <span class="icon">📚</span> Belajar Inti
-                </a>
-                <a href="{{ route('quiz.daily') }}" class="nav-item {{ request()->routeIs('quiz.daily') ? 'active' : '' }}">
-                    <span class="icon">⚡</span> Kuis Harian
-                    <span class="nav-badge-pulse">10 Soal</span>
-                </a>
-                <a href="{{ route('gamification.index') }}" class="nav-item {{ request()->routeIs('gamification.*') ? 'active' : '' }}">
-                    <span class="icon">🎮</span> Gamifikasi & Game
-                </a>
-                <a href="{{ route('teacher.index') }}" class="nav-item nav-item-teacher {{ request()->routeIs('teacher.*') ? 'active' : '' }}">
-                    <span class="icon">👨‍🏫</span> Guru
-                </a>
-                <a href="{{ route('parent.index') }}" class="nav-item nav-item-parent {{ request()->routeIs('parent.*') ? 'active' : '' }}">
-                    <span class="icon">👨‍👩‍👧</span> Orang Tua
-                </a>
+                @auth
+                    @if(Auth::user()->isGuru())
+                        <!-- Menu Khusus Guru -->
+                        <a href="{{ route('teacher.index') }}" class="nav-item nav-item-teacher {{ request()->routeIs('teacher.index') ? 'active' : '' }}">
+                            <span class="icon">👨‍🏫</span> Dashboard Guru
+                        </a>
+                        <a href="{{ route('learning.index') }}" class="nav-item {{ request()->routeIs('learning.*') ? 'active' : '' }}">
+                            <span class="icon">📚</span> Modul & Soal
+                        </a>
+                        <a href="{{ route('home') }}" class="nav-item {{ request()->routeIs('home') ? 'active' : '' }}">
+                            <span class="icon">👁️</span> Pratinjau Siswa
+                        </a>
+                        <a href="{{ route('teacher.export') }}" class="nav-item" title="Unduh Rekap Nilai CSV">
+                            <span class="icon">📥</span> Unduh CSV
+                        </a>
+                    @elseif(Auth::user()->isOrangTua())
+                        <!-- Menu Khusus Orang Tua -->
+                        <a href="{{ route('parent.index') }}" class="nav-item nav-item-parent {{ request()->routeIs('parent.index') ? 'active' : '' }}">
+                            <span class="icon">👨‍👩‍👧</span> Portal Orang Tua
+                        </a>
+                        <a href="{{ route('home') }}" class="nav-item {{ request()->routeIs('home') ? 'active' : '' }}">
+                            <span class="icon">📚</span> Materi Ananda
+                        </a>
+                        <a href="{{ route('quiz.daily') }}" class="nav-item {{ request()->routeIs('quiz.daily') ? 'active' : '' }}">
+                            <span class="icon">⚡</span> Kuis Anak
+                        </a>
+                    @else
+                        <!-- Menu Siswa (Default) -->
+                        <a href="{{ route('home') }}" class="nav-item {{ request()->routeIs('home') ? 'active' : '' }}">
+                            <span class="icon">🏠</span> Beranda
+                        </a>
+                        <a href="{{ route('learning.index') }}" class="nav-item {{ request()->routeIs('learning.*') ? 'active' : '' }}">
+                            <span class="icon">📚</span> Belajar Inti
+                        </a>
+                        <a href="{{ route('quiz.daily') }}" class="nav-item {{ request()->routeIs('quiz.daily') ? 'active' : '' }}">
+                            <span class="icon">⚡</span> Kuis Harian
+                            <span class="nav-badge-pulse">10 Soal</span>
+                        </a>
+                        <a href="{{ route('gamification.index') }}" class="nav-item {{ request()->routeIs('gamification.*') ? 'active' : '' }}">
+                            <span class="icon">🎮</span> Gamifikasi & Game
+                        </a>
+                    @endif
+                @else
+                    <!-- Menu Pengunjung (Belum Login) -->
+                    <a href="{{ route('home') }}" class="nav-item {{ request()->routeIs('home') ? 'active' : '' }}">
+                        <span class="icon">🏠</span> Beranda
+                    </a>
+                    <a href="{{ route('learning.index') }}" class="nav-item {{ request()->routeIs('learning.*') ? 'active' : '' }}">
+                        <span class="icon">📚</span> Belajar Inti
+                    </a>
+                    <a href="{{ route('quiz.daily') }}" class="nav-item {{ request()->routeIs('quiz.daily') ? 'active' : '' }}">
+                        <span class="icon">⚡</span> Kuis Harian
+                    </a>
+                    <a href="{{ route('gamification.index') }}" class="nav-item {{ request()->routeIs('gamification.*') ? 'active' : '' }}">
+                        <span class="icon">🎮</span> Gamifikasi
+                    </a>
+                @endauth
             </nav>
 
-            <!-- Student Gamified Quick Stats Header -->
+            <!-- Nav Stats & User Action Controls -->
             <div class="nav-stats">
+                <!-- Sound Toggle Button -->
                 <button class="stat-pill" id="soundToggleBtn" onclick="toggleMuteAudio()" style="cursor: pointer; background: rgba(255,255,255,0.08);" title="Nyalakan/Matikan Suara">
                     <span id="soundIcon">🔊</span>
                 </button>
 
-                <div class="stat-pill streak-pill" title="Streak Belajar Harian!">
-                    <span class="streak-icon">🔥</span>
-                    <span class="stat-val" id="headerStreak">7</span>
-                    <span class="stat-lbl">Hari</span>
-                </div>
-                <div class="stat-pill xp-pill" title="XP Kamu (Kumpulkan untuk naik level!)">
-                    <span class="xp-icon">⭐</span>
-                    <span class="stat-val" id="headerXp">850</span>
-                    <span class="stat-lbl">XP</span>
-                </div>
-                <div class="stat-pill coin-pill" title="Koin Bintang untuk Beli Aksesoris Avatar">
-                    <span class="coin-icon">🪙</span>
-                    <span class="stat-val" id="headerCoins">350</span>
-                </div>
-                <a href="{{ route('gamification.index') }}" class="user-avatar-btn" title="Kustomisasi Avatar">
-                    <span class="avatar-face" id="headerAvatarFace">🚀</span>
-                </a>
+                @auth
+                    @if(Auth::user()->isSiswa())
+                        <!-- Student Gamified Quick Stats Header -->
+                        <div class="stat-pill streak-pill d-none-mobile-xs" title="Streak Belajar Harian!">
+                            <span class="streak-icon">🔥</span>
+                            <span class="stat-val" id="headerStreak">7</span>
+                            <span class="stat-lbl">Hari</span>
+                        </div>
+                        <div class="stat-pill xp-pill d-none-mobile-xs" title="XP Kamu (Kumpulkan untuk naik level!)">
+                            <span class="xp-icon">⭐</span>
+                            <span class="stat-val" id="headerXp">850</span>
+                            <span class="stat-lbl">XP</span>
+                        </div>
+                        <div class="stat-pill coin-pill" title="Koin Bintang untuk Beli Aksesoris Avatar">
+                            <span class="coin-icon">🪙</span>
+                            <span class="stat-val" id="headerCoins">350</span>
+                        </div>
+                    @elseif(Auth::user()->isGuru())
+                        <!-- Teacher Quick Header Pill -->
+                        <div class="stat-pill" style="background: rgba(139, 92, 246, 0.18); border-color: rgba(139, 92, 246, 0.4); color: #c4b5fd;">
+                            <span>👨‍🏫 Guru 5-A</span>
+                        </div>
+                    @elseif(Auth::user()->isOrangTua())
+                        <!-- Parent Quick Header Pill -->
+                        <div class="stat-pill" style="background: rgba(16, 185, 129, 0.18); border-color: rgba(16, 185, 129, 0.4); color: #86efac;">
+                            <span>👨‍👩‍👧 Orang Tua Doni</span>
+                        </div>
+                    @endif
+
+                    <!-- User Account Dropdown Button -->
+                    <div class="user-dropdown-container">
+                        <button class="user-account-btn" id="userMenuToggleBtn" onclick="toggleUserDropdown(event)" title="Menu Akun & Ganti Peran">
+                            <span class="user-role-avatar">{{ Auth::user()->avatar ?? (Auth::user()->isGuru() ? '👩‍🏫' : (Auth::user()->isOrangTua() ? '👩‍👧' : '🚀')) }}</span>
+                            <span class="user-name-short">{{ explode(' ', Auth::user()->name)[0] }}</span>
+                            <span class="user-dropdown-chevron">▼</span>
+                        </button>
+
+                        <!-- Dropdown Menu Box -->
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="dropdown-header">
+                                <div class="dropdown-user-name">{{ Auth::user()->name }}</div>
+                                <div class="dropdown-role-badge role-badge-{{ Auth::user()->role }}">
+                                    {{ Auth::user()->role_label }}
+                                </div>
+                                <div class="dropdown-user-email">{{ Auth::user()->email }}</div>
+                            </div>
+
+                            <div class="dropdown-divider"></div>
+
+                            <div class="dropdown-section-title">Ganti Peran Cepat (Demo):</div>
+                            <div class="dropdown-role-switchers">
+                                <form action="{{ route('login.quick') }}" method="POST" style="margin: 0;">
+                                    @csrf
+                                    <input type="hidden" name="role" value="siswa">
+                                    <button type="submit" class="dropdown-role-btn {{ Auth::user()->isSiswa() ? 'current' : '' }}">
+                                        <span>🎒</span> Siswa (Doni)
+                                    </button>
+                                </form>
+                                <form action="{{ route('login.quick') }}" method="POST" style="margin: 0;">
+                                    @csrf
+                                    <input type="hidden" name="role" value="guru">
+                                    <button type="submit" class="dropdown-role-btn {{ Auth::user()->isGuru() ? 'current' : '' }}">
+                                        <span>👨‍🏫</span> Guru (Rahmawati)
+                                    </button>
+                                </form>
+                                <form action="{{ route('login.quick') }}" method="POST" style="margin: 0;">
+                                    @csrf
+                                    <input type="hidden" name="role" value="orang_tua">
+                                    <button type="submit" class="dropdown-role-btn {{ Auth::user()->isOrangTua() ? 'current' : '' }}">
+                                        <span>👨‍👩‍👧</span> Orang Tua (Bunda)
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="dropdown-divider"></div>
+
+                            <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
+                                @csrf
+                                <button type="submit" class="dropdown-logout-btn">
+                                    <span>🚪</span> Keluar dari Akun
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @else
+                    <!-- Login Button for Guests -->
+                    <a href="{{ route('login') }}" class="btn-nav-login" title="Masuk ke Akun Anda">
+                        <span>🔐</span> <span class="login-text">Masuk</span>
+                    </a>
+                @endauth
+
+                <!-- Hamburger Button for Mobile & Tablet -->
+                <button class="hamburger-btn" id="mobileMenuToggleBtn" onclick="toggleMobileDrawer()" aria-label="Menu Navigasi Mobile">
+                    <span class="bar bar-1"></span>
+                    <span class="bar bar-2"></span>
+                    <span class="bar bar-3"></span>
+                </button>
             </div>
         </div>
     </header>
+
+    <!-- Mobile Navigation Drawer & Backdrop -->
+    <div class="mobile-drawer-backdrop" id="mobileDrawerBackdrop" onclick="closeMobileDrawer()"></div>
+    <aside class="mobile-nav-drawer" id="mobileNavDrawer">
+        <div class="mobile-drawer-header">
+            <div class="drawer-brand">
+                <span style="font-size: 1.5rem;">🚀</span>
+                <div>
+                    <div style="font-family: var(--font-heading); font-size: 1.15rem; color: white; font-weight: 700;">SDS MADANI</div>
+                    <div style="font-size: 0.7rem; color: #a5b4fc; font-weight: 700;">E-LEARNING SD KELAS 4-6</div>
+                </div>
+            </div>
+            <button class="btn-drawer-close" onclick="closeMobileDrawer()" aria-label="Tutup Menu">✕</button>
+        </div>
+
+        <div class="mobile-drawer-body">
+            @auth
+                <!-- User Profile Card in Mobile Drawer -->
+                <div class="mobile-user-card">
+                    <div class="mobile-avatar">{{ Auth::user()->avatar ?? '🚀' }}</div>
+                    <div class="mobile-user-details">
+                        <div class="mobile-user-name">{{ Auth::user()->name }}</div>
+                        <div class="dropdown-role-badge role-badge-{{ Auth::user()->role }}">
+                            {{ Auth::user()->role_label }}
+                        </div>
+                    </div>
+                </div>
+
+                @if(Auth::user()->isSiswa())
+                    <!-- Mobile Student Stats Row -->
+                    <div class="mobile-stats-row">
+                        <div class="mobile-stat-item">
+                            <span style="color: #f97316;">🔥</span>
+                            <span><strong>7</strong> Hari Streak</span>
+                        </div>
+                        <div class="mobile-stat-item">
+                            <span style="color: #fbbf24;">⭐</span>
+                            <span><strong>850</strong> XP</span>
+                        </div>
+                        <div class="mobile-stat-item">
+                            <span style="color: #fbbf24;">🪙</span>
+                            <span><strong>350</strong> Koin</span>
+                        </div>
+                    </div>
+                @endif
+            @else
+                <div class="mobile-guest-card">
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.8rem;">
+                        Belum masuk? Pilih peran untuk pengalaman belajar terbaik.
+                    </p>
+                    <a href="{{ route('login') }}" class="btn btn-primary btn-sm" style="width: 100%; justify-content: center;">
+                        🔐 Halaman Masuk / Login
+                    </a>
+                </div>
+            @endauth
+
+            <div class="mobile-menu-section-title">NAVIGASI UTAMA</div>
+            <nav class="mobile-drawer-nav">
+                @auth
+                    @if(Auth::user()->isGuru())
+                        <a href="{{ route('teacher.index') }}" class="mobile-nav-link {{ request()->routeIs('teacher.index') ? 'active' : '' }}" onclick="closeMobileDrawer()">
+                            <span class="icon">👨‍🏫</span> Dashboard Guru
+                        </a>
+                        <a href="{{ route('learning.index') }}" class="mobile-nav-link {{ request()->routeIs('learning.*') ? 'active' : '' }}" onclick="closeMobileDrawer()">
+                            <span class="icon">📚</span> Modul & Bank Soal
+                        </a>
+                        <a href="{{ route('home') }}" class="mobile-nav-link {{ request()->routeIs('home') ? 'active' : '' }}" onclick="closeMobileDrawer()">
+                            <span class="icon">👁️</span> Pratinjau Tampilan Siswa
+                        </a>
+                        <a href="{{ route('teacher.export') }}" class="mobile-nav-link" onclick="closeMobileDrawer()">
+                            <span class="icon">📥</span> Unduh Rekap Nilai CSV
+                        </a>
+                    @elseif(Auth::user()->isOrangTua())
+                        <a href="{{ route('parent.index') }}" class="mobile-nav-link {{ request()->routeIs('parent.*') ? 'active' : '' }}" onclick="closeMobileDrawer()">
+                            <span class="icon">👨‍👩‍👧</span> Portal Orang Tua
+                        </a>
+                        <a href="{{ route('home') }}" class="mobile-nav-link {{ request()->routeIs('home') ? 'active' : '' }}" onclick="closeMobileDrawer()">
+                            <span class="icon">📚</span> Materi Pelajaran Ananda
+                        </a>
+                        <a href="{{ route('quiz.daily') }}" class="mobile-nav-link {{ request()->routeIs('quiz.daily') ? 'active' : '' }}" onclick="closeMobileDrawer()">
+                            <span class="icon">⚡</span> Kuis Harian Ananda
+                        </a>
+                    @else
+                        <a href="{{ route('home') }}" class="mobile-nav-link {{ request()->routeIs('home') ? 'active' : '' }}" onclick="closeMobileDrawer()">
+                            <span class="icon">🏠</span> Beranda Belajar
+                        </a>
+                        <a href="{{ route('learning.index') }}" class="mobile-nav-link {{ request()->routeIs('learning.*') ? 'active' : '' }}" onclick="closeMobileDrawer()">
+                            <span class="icon">📚</span> Modul Belajar & Coding
+                        </a>
+                        <a href="{{ route('quiz.daily') }}" class="mobile-nav-link {{ request()->routeIs('quiz.daily') ? 'active' : '' }}" onclick="closeMobileDrawer()">
+                            <span class="icon">⚡</span> Kuis Harian (10 Soal)
+                        </a>
+                        <a href="{{ route('gamification.index') }}" class="mobile-nav-link {{ request()->routeIs('gamification.*') ? 'active' : '' }}" onclick="closeMobileDrawer()">
+                            <span class="icon">🎮</span> Gamifikasi, Avatar & Mini Game
+                        </a>
+                    @endif
+                @else
+                    <a href="{{ route('home') }}" class="mobile-nav-link {{ request()->routeIs('home') ? 'active' : '' }}" onclick="closeMobileDrawer()">
+                        <span class="icon">🏠</span> Beranda Belajar
+                    </a>
+                    <a href="{{ route('learning.index') }}" class="mobile-nav-link {{ request()->routeIs('learning.*') ? 'active' : '' }}" onclick="closeMobileDrawer()">
+                        <span class="icon">📚</span> Modul Belajar & Coding
+                    </a>
+                    <a href="{{ route('quiz.daily') }}" class="mobile-nav-link {{ request()->routeIs('quiz.daily') ? 'active' : '' }}" onclick="closeMobileDrawer()">
+                        <span class="icon">⚡</span> Kuis Harian (10 Soal)
+                    </a>
+                    <a href="{{ route('gamification.index') }}" class="mobile-nav-link {{ request()->routeIs('gamification.*') ? 'active' : '' }}" onclick="closeMobileDrawer()">
+                        <span class="icon">🎮</span> Gamifikasi & Mini Game
+                    </a>
+                @endauth
+            </nav>
+
+            <div class="mobile-menu-section-title">GANTI PERAN CEPAT (DEMO)</div>
+            <div class="mobile-role-switches">
+                <form action="{{ route('login.quick') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="role" value="siswa">
+                    <button type="submit" class="btn-mobile-role role-siswa">
+                        <span>🎒</span> Tampilan Siswa
+                    </button>
+                </form>
+                <form action="{{ route('login.quick') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="role" value="guru">
+                    <button type="submit" class="btn-mobile-role role-guru">
+                        <span>👨‍🏫</span> Tampilan Guru
+                    </button>
+                </form>
+                <form action="{{ route('login.quick') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="role" value="orang_tua">
+                    <button type="submit" class="btn-mobile-role role-orang_tua">
+                        <span>👨‍👩‍👧</span> Tampilan Orang Tua
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="mobile-drawer-footer">
+            @auth
+                <form action="{{ route('logout') }}" method="POST" style="margin: 0; width: 100%;">
+                    @csrf
+                    <button type="submit" class="btn-drawer-logout">
+                        <span>🚪</span> Keluar dari Akun
+                    </button>
+                </form>
+            @else
+                <a href="{{ route('login') }}" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    🔐 Masuk ke Portal
+                </a>
+            @endauth
+        </div>
+    </aside>
+
+    <!-- Global Floating Alert/Toast Container for Session Messages -->
+    @if(session('success') || session('warning') || session('info') || session('error'))
+        <div class="global-toast-container" id="globalToastContainer">
+            @if(session('success'))
+                <div class="global-toast toast-success">
+                    <span class="toast-icon">✅</span>
+                    <div class="toast-content">{{ session('success') }}</div>
+                    <button class="toast-close" onclick="dismissToast(this)">✕</button>
+                </div>
+            @endif
+            @if(session('warning'))
+                <div class="global-toast toast-warning">
+                    <span class="toast-icon">⚠️</span>
+                    <div class="toast-content">{{ session('warning') }}</div>
+                    <button class="toast-close" onclick="dismissToast(this)">✕</button>
+                </div>
+            @endif
+            @if(session('info'))
+                <div class="global-toast toast-info">
+                    <span class="toast-icon">ℹ️</span>
+                    <div class="toast-content">{{ session('info') }}</div>
+                    <button class="toast-close" onclick="dismissToast(this)">✕</button>
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="global-toast toast-error">
+                    <span class="toast-icon">❌</span>
+                    <div class="toast-content">{{ session('error') }}</div>
+                    <button class="toast-close" onclick="dismissToast(this)">✕</button>
+                </div>
+            @endif
+        </div>
+    @endif
 
     <!-- Main Content Area -->
     <main class="app-main">
         @yield('content')
     </main>
 
-    <!-- Screen Time Warning Indicator (Parent Feature) -->
-    <div class="screen-time-bar" id="screenTimeBar">
-        <div class="screen-time-info">
-            <span>⏱️ Waktu Belajar Hari Ini: <strong><span id="screenTimeUsedText">25</span> / <span id="screenTimeLimitText">45</span> Menit</strong> (Sisa <strong id="screenTimeRemainingText" style="color: #38bdf8;">20</strong> Menit)</span>
-            <a href="{{ route('parent.index') }}" class="link-manage-time">⚙️ Atur Batas Waktu di Portal Orang Tua</a>
-        </div>
-    </div>
-
-    <!-- Screen Time Out Overlay Modal (Locks screen when time reaches 0) -->
-    <div id="screenTimeLockModal" style="display: none; position: fixed; inset: 0; background: rgba(2,6,23,0.96); backdrop-filter: blur(20px); z-index: 99999; align-items: center; justify-content: center; padding: 2rem;">
-        <div class="glass-panel" style="max-width: 480px; width: 100%; text-align: center; border-color: #ef4444; box-shadow: 0 0 50px rgba(239,68,68,0.4);">
-            <div style="font-size: 4rem; margin-bottom: 1rem;">🛑</div>
-            <h2 style="font-family: var(--font-heading); color: #fca5a5; font-size: 1.8rem; margin-bottom: 0.5rem;">Waktu Belajar Harian Selesai!</h2>
-            <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.6;">
-                Hebat sekali, kamu sudah belajar dengan tekun hari ini! Istirahatkan matamu sejenak ya. Untuk melanjutkan belajar, mintalah Ayah atau Bunda untuk memasukkan PIN.
-            </p>
-            <div style="display: flex; gap: 0.8rem; justify-content: center;">
-                <a href="{{ route('parent.index') }}" class="btn btn-primary">
-                    Buka Portal Orang Tua (Buka Kunci PIN)
-                </a>
+    <!-- Screen Time Warning Indicator (Only for Siswa or Guest) -->
+    @if(!Auth::check() || Auth::user()->isSiswa())
+        <div class="screen-time-bar" id="screenTimeBar">
+            <div class="screen-time-info">
+                <span>⏱️ Waktu Belajar Hari Ini: <strong><span id="screenTimeUsedText">25</span> / <span id="screenTimeLimitText">45</span> Menit</strong> (Sisa <strong id="screenTimeRemainingText" style="color: #38bdf8;">20</strong> Menit)</span>
+                <a href="{{ route('parent.index') }}" class="link-manage-time">⚙️ Atur di Portal Orang Tua</a>
             </div>
         </div>
-    </div>
 
-    <!-- Interactive Audio FX Engine (Web Audio API Synthesizer) -->
+        <!-- Screen Time Out Overlay Modal (Locks screen when time reaches 0) -->
+        <div id="screenTimeLockModal" style="display: none; position: fixed; inset: 0; background: rgba(2,6,23,0.96); backdrop-filter: blur(20px); z-index: 99999; align-items: center; justify-content: center; padding: 2rem;">
+            <div class="glass-panel" style="max-width: 480px; width: 100%; text-align: center; border-color: #ef4444; box-shadow: 0 0 50px rgba(239,68,68,0.4);">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">🛑</div>
+                <h2 style="font-family: var(--font-heading); color: #fca5a5; font-size: 1.8rem; margin-bottom: 0.5rem;">Waktu Belajar Harian Selesai!</h2>
+                <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.6;">
+                    Hebat sekali, kamu sudah belajar dengan tekun hari ini! Istirahatkan matamu sejenak ya. Untuk melanjutkan belajar, mintalah Ayah atau Bunda untuk membuka kunci via Portal Orang Tua.
+                </p>
+                <div style="display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap;">
+                    <a href="{{ route('parent.index') }}" class="btn btn-primary">
+                        Buka Portal Orang Tua (Buka Kunci PIN)
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Interactive Audio FX Engine & Global Script -->
     <script>
         class SoundFX {
             constructor() {
@@ -256,7 +566,66 @@
             }
         };
 
-        // Real Screen Time Countdown Simulation
+        // Mobile Drawer Controller
+        function toggleMobileDrawer() {
+            const drawer = document.getElementById('mobileNavDrawer');
+            const backdrop = document.getElementById('mobileDrawerBackdrop');
+            const btn = document.getElementById('mobileMenuToggleBtn');
+            const isOpen = drawer.classList.contains('active');
+
+            if (isOpen) {
+                closeMobileDrawer();
+            } else {
+                drawer.classList.add('active');
+                backdrop.classList.add('active');
+                btn.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeMobileDrawer() {
+            const drawer = document.getElementById('mobileNavDrawer');
+            const backdrop = document.getElementById('mobileDrawerBackdrop');
+            const btn = document.getElementById('mobileMenuToggleBtn');
+            if (drawer) drawer.classList.remove('active');
+            if (backdrop) backdrop.classList.remove('active');
+            if (btn) btn.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // User Dropdown Controller
+        function toggleUserDropdown(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('userDropdownMenu');
+            if (menu) menu.classList.toggle('active');
+        }
+
+        window.addEventListener('click', () => {
+            const menu = document.getElementById('userDropdownMenu');
+            if (menu) menu.classList.remove('active');
+        });
+
+        // Toast Dismissal
+        function dismissToast(btn) {
+            const toast = btn.closest('.global-toast');
+            if (toast) {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+                setTimeout(() => toast.remove(), 300);
+            }
+        }
+
+        // Auto dismiss toast after 6s
+        setTimeout(() => {
+            const toasts = document.querySelectorAll('.global-toast');
+            toasts.forEach(t => {
+                t.style.opacity = '0';
+                t.style.transform = 'translateY(-10px)';
+                setTimeout(() => t.remove(), 300);
+            });
+        }, 6000);
+
+        // Screen Time Countdown Simulation
         let screenTimeRemainingMinutes = parseInt(localStorage.getItem('sds_screen_time_left') || '20');
 
         function updateScreenTimeDisplay() {
