@@ -1,0 +1,130 @@
+// Database Markup Language (DBML)
+// Project: Aplikasi SDS Madani - E-Learning SD Kelas 4-6
+// Tools: Dapat dibuka langsung di https://dbdiagram.io
+
+Table users {
+  id bigint [pk, increment, note: 'Primary Key']
+  name varchar(255) [not null, note: 'Nama lengkap pengguna']
+  username varchar(255) [unique, null, note: 'Username login alternatif']
+  email varchar(255) [unique, not null, note: 'Email login']
+  role varchar(255) [not null, default: 'siswa', note: 'Role: siswa, guru, orang_tua']
+  avatar varchar(255) [null, default: '🚀', note: 'Emoji avatar']
+  phone varchar(255) [null, note: 'Nomor telepon/WhatsApp']
+  email_verified_at timestamp [null]
+  password varchar(255) [not null, note: 'Password bcrypt hash']
+  remember_token varchar(100) [null]
+  created_at timestamp [null]
+  updated_at timestamp [null]
+
+  Note: 'Tabel pengguna untuk seluruh role (Siswa, Guru, Orang Tua)'
+}
+
+Table subjects {
+  id varchar(255) [pk, note: 'Kode mapel: math, ipa, bindo, dll']
+  name varchar(255) [not null, note: 'Nama mata pelajaran']
+  class varchar(255) [not null, default: 'Kelas 4 - 6', note: 'Tingkat kelas target']
+  icon varchar(255) [not null, note: 'Icon emoji']
+  color varchar(255) [not null, note: 'Hex color badge']
+  bg_gradient varchar(255) [not null, note: 'CSS gradient background']
+  summary text [not null, note: 'Ringkasan kurikulum']
+  progress int [not null, default: 0, note: 'Persentase progres default']
+  created_at timestamp [null]
+  updated_at timestamp [null]
+
+  Note: 'Master mata pelajaran yang diajarkan'
+}
+
+Table topics {
+  id varchar(255) [pk, note: 'ID topik']
+  subject_id varchar(255) [not null, ref: > subjects.id, note: 'Foreign key ke subjects']
+  title varchar(255) [not null, note: 'Judul topik materi']
+  duration varchar(255) [not null, note: 'Estimasi durasi belajar, misal 15 Menit']
+  difficulty varchar(255) [not null, note: 'Tingkat kesulitan: Mudah, Sedang, Sulit']
+  video_title varchar(255) [not null, note: 'Judul video pembelajaran']
+  video_desc text [not null, note: 'Deskripsi singkat isi video']
+  video_url varchar(500) [null, note: 'URL video YouTube/LMS']
+  micro_steps json [not null, note: 'Langkah pembelajaran interaktif (array)']
+  created_at timestamp [null]
+  updated_at timestamp [null]
+
+  Note: 'Topik materi per mata pelajaran'
+}
+
+Table questions {
+  id bigint [pk, increment, note: 'Primary Key']
+  subject_id varchar(255) [not null, ref: > subjects.id, note: 'Foreign key ke subjects']
+  topic_id varchar(255) [null, ref: > topics.id, note: 'Foreign key opsional ke topik']
+  level varchar(255) [not null, default: 'Mudah', note: 'Mudah, Sedang, Sulit, Harian']
+  stars varchar(255) [not null, default: '★☆☆', note: 'Rating tingkat kesulitan']
+  question text [not null, note: 'Kalimat soal']
+  options json [not null, note: 'Pilihan ganda dalam format JSON']
+  answer int [not null, note: 'Index opsi yang benar (0-based)']
+  explanation text [not null, note: 'Pembahasan kunci jawaban']
+  is_daily boolean [not null, default: false, note: 'True jika masuk bank kuis harian']
+  created_at timestamp [null]
+  updated_at timestamp [null]
+
+  Note: 'Bank soal kuis, latihan, dan kuis harian'
+}
+
+Table students {
+  id bigint [pk, increment, note: 'Primary Key']
+  name varchar(255) [not null, note: 'Nama siswa']
+  class varchar(255) [not null, default: 'Kelas 5-A', note: 'Rombel kelas']
+  score int [not null, default: 85, note: 'Skor nilai rata-rata']
+  status varchar(255) [not null, default: 'Aktif', note: 'Status keaktifan siswa']
+  streak int [not null, default: 1, note: 'Jumlah hari belajar beruntun']
+  xp int [not null, default: 100, note: 'Experience points (gamifikasi)']
+  coins int [not null, default: 50, note: 'Koin reward']
+  avatar varchar(255) [not null, default: '🚀', note: 'Emoji avatar']
+  level int [not null, default: 1, note: 'Level siswa']
+  weakness varchar(255) [null, note: 'Materi yang perlu bimbingan khusus']
+  is_me boolean [not null, default: false, note: 'Penanda akun demo/aktif']
+  created_at timestamp [null]
+  updated_at timestamp [null]
+
+  Note: 'Data profil siswa dan status gamifikasi'
+}
+
+Table badges {
+  id varchar(255) [pk, note: 'Kode lencana, misal streak_3']
+  title varchar(255) [not null, note: 'Nama badge']
+  icon varchar(255) [not null, note: 'Icon emoji badge']
+  desc text [not null, note: 'Kriteria & deskripsi pencapaian']
+  unlocked boolean [not null, default: false, note: 'Status apakah sudah terbuka']
+  unlocked_at varchar(255) [null, note: 'Tanggal dibuka']
+  created_at timestamp [null]
+  updated_at timestamp [null]
+
+  Note: 'Daftar reward badge/prestasi siswa'
+}
+
+Table announcements {
+  id bigint [pk, increment, note: 'Primary Key']
+  title varchar(255) [not null, note: 'Judul pengumuman']
+  date varchar(255) [not null, note: 'Tanggal tayang pengumuman']
+  desc text [not null, note: 'Isi lengkap pengumuman']
+  created_at timestamp [null]
+  updated_at timestamp [null]
+
+  Note: 'Pengumuman sekolah untuk murid dan orang tua'
+}
+
+Table parent_settings {
+  id bigint [pk, increment, note: 'Primary Key']
+  child_name varchar(255) [not null, default: 'Doni Pratama', note: 'Nama anak yang dipantau']
+  wali_kelas varchar(255) [not null, default: 'Ibu Rahmawati, S.Pd.', note: 'Nama wali kelas']
+  max_screen_time int [not null, default: 45, note: 'Batas layar dalam menit']
+  used_screen_time int [not null, default: 25, note: 'Waktu layar terpakai (menit)']
+  pin varchar(255) [not null, default: '1234', note: 'PIN akses portal orang tua']
+  study_time varchar(255) [not null, default: '19:00', note: 'Jadwal jam belajar wajib']
+  created_at timestamp [null]
+  updated_at timestamp [null]
+
+  Note: 'Pengaturan kontrol orang tua dan parental control'
+}
+
+// Relationships
+Ref: topics.subject_id > subjects.id [delete: cascade]
+Ref: questions.subject_id > subjects.id [delete: restrict]
+Ref: questions.topic_id > topics.id [delete: set null]

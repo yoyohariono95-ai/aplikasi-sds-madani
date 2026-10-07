@@ -182,6 +182,11 @@
                                 <div style="font-size: 0.85rem; color: #38bdf8; font-weight: 700; font-family: monospace;">
                                     👤 {{ $st['user']['username'] }}
                                 </div>
+                                @if(!empty($st['user']['nis']))
+                                <div style="font-size: 0.75rem; color: #60a5fa; font-weight: 600; font-family: monospace;">
+                                    🆔 NIS: {{ $st['user']['nis'] }}
+                                </div>
+                                @endif
                                 <div style="font-size: 0.75rem; color: #cbd5e1;">
                                     ✉️ {{ $st['user']['email'] }}
                                 </div>
@@ -458,7 +463,7 @@
             @csrf
             <div class="modal-body">
                 <div style="background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px; padding: 0.8rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: #a7f3d0;">
-                    💡 <strong>Pembuatan Akun Siswa:</strong> Akun yang didaftarkan akan langsung aktif. Siswa dapat langsung login dengan <b>Username</b> atau <b>Email</b> dan password yang ditentukan.
+                    💡 <strong>Pembuatan Akun Siswa:</strong> Siswa dapat langsung login ke portal menggunakan <b>Username</b> atau <b>Nomor Induk Siswa (NIS)</b> disertai 6 angka <b>PIN</b>.
                 </div>
 
                 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1rem;">
@@ -490,28 +495,39 @@
                         </label>
                         <input type="text" name="username" id="newStudentUsername" placeholder="contoh: rizky" style="width: 100%; padding: 0.75rem; border-radius: 12px; background: #0f172a; border: 1px solid rgba(56,189,248,0.4); color: white; font-family: monospace;" required>
                         <span style="font-size: 0.72rem; color: var(--text-dim); margin-top: 0.25rem; display: block;">
-                            Hanya huruf kecil, angka, atau tanda minus (-)
+                            Hanya huruf kecil atau angka
+                        </span>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #60a5fa; margin-bottom: 0.4rem;">
+                            Nomor Induk Siswa (NIS):
+                        </label>
+                        <input type="text" name="nis" id="newStudentNis" placeholder="contoh: 20260506" style="width: 100%; padding: 0.75rem; border-radius: 12px; background: #0f172a; border: 1px solid rgba(96,165,250,0.4); color: white; font-family: monospace;">
+                        <span style="font-size: 0.72rem; color: var(--text-dim); margin-top: 0.25rem; display: block;">
+                            Otomatis diisi atau ketik nomor resmi
+                        </span>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.4rem;">
+                            PIN Masuk Siswa (6 Angka): <span style="color: #ef4444;">*</span>
+                        </label>
+                        <div style="position: relative;">
+                            <input type="text" name="pin" id="newStudentPin" value="123456" placeholder="Minimal 4-6 angka" style="width: 100%; padding: 0.75rem 2.8rem 0.75rem 0.8rem; border-radius: 12px; background: #0f172a; border: 1px solid var(--border-glass); color: white;" required>
+                            <button type="button" onclick="togglePasswordVisibility('newStudentPin', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem;">👁️</button>
+                        </div>
+                        <span style="font-size: 0.72rem; color: #a5b4fc; margin-top: 0.25rem; display: block;">
+                            Default: <code>123456</code> (Mudah diingat siswa SD)
                         </span>
                     </div>
                     <div>
                         <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.4rem;">
-                            Email Siswa: <span style="color: #ef4444;">*</span>
+                            Email Siswa (Opsional):
                         </label>
-                        <input type="email" name="email" id="newStudentEmail" placeholder="contoh: rizky@sdsmadani.sch.id" style="width: 100%; padding: 0.75rem; border-radius: 12px; background: #0f172a; border: 1px solid var(--border-glass); color: white;" required>
+                        <input type="email" name="email" id="newStudentEmail" placeholder="contoh: rizky@sdsmadani.sch.id" style="width: 100%; padding: 0.75rem; border-radius: 12px; background: #0f172a; border: 1px solid var(--border-glass); color: white;">
                     </div>
-                </div>
-
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.4rem;">
-                        Kata Sandi Awal (Password): <span style="color: #ef4444;">*</span>
-                    </label>
-                    <div style="position: relative;">
-                        <input type="text" name="password" id="newStudentPassword" value="password123" placeholder="Minimal 6 karakter" style="width: 100%; padding: 0.75rem 2.8rem 0.75rem 0.8rem; border-radius: 12px; background: #0f172a; border: 1px solid var(--border-glass); color: white;" required>
-                        <button type="button" onclick="togglePasswordVisibility('newStudentPassword', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem;">👁️</button>
-                    </div>
-                    <span style="font-size: 0.75rem; color: #a5b4fc; margin-top: 0.25rem; display: block;">
-                        Default: <code>password123</code> (Guru dapat memberitahukan ini ke siswa)
-                    </span>
                 </div>
 
                 <div style="margin-bottom: 1.25rem;">
@@ -577,14 +593,14 @@
 
                 <div style="margin-bottom: 1rem;">
                     <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #fca5a5; margin-bottom: 0.4rem;">
-                        Kata Sandi Baru: <span style="color: #ef4444;">*</span>
+                        PIN / Kata Sandi Baru Siswa: <span style="color: #ef4444;">*</span>
                     </label>
                     <div style="position: relative;">
-                        <input type="text" name="new_password" id="inputResetPassword" value="password123" placeholder="Minimal 6 karakter" style="width: 100%; padding: 0.75rem 2.8rem 0.75rem 0.8rem; border-radius: 12px; background: #0f172a; border: 1px solid rgba(56,189,248,0.4); color: white;" required>
+                        <input type="text" name="new_password" id="inputResetPassword" value="123456" placeholder="Minimal 4-6 angka" style="width: 100%; padding: 0.75rem 2.8rem 0.75rem 0.8rem; border-radius: 12px; background: #0f172a; border: 1px solid rgba(56,189,248,0.4); color: white;" required>
                         <button type="button" onclick="togglePasswordVisibility('inputResetPassword', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem;">👁️</button>
                     </div>
                     <span style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.3rem; display: block;">
-                        Setelah disimpan, berikan kata sandi baru ini kepada siswa/wali murid.
+                        PIN standar sekolah adalah <b>123456</b>. Siswa login menggunakan NIS atau Username + PIN ini.
                     </span>
                 </div>
             </div>
@@ -667,9 +683,13 @@
         
         const usernameInput = document.getElementById('newStudentUsername');
         const emailInput = document.getElementById('newStudentEmail');
+        const nisInput = document.getElementById('newStudentNis');
 
         if (usernameInput) usernameInput.value = slug;
         if (emailInput) emailInput.value = `${slug}@sdsmadani.sch.id`;
+        if (nisInput && !nisInput.value) {
+            nisInput.value = '2026' + Math.floor(1000 + Math.random() * 9000);
+        }
     }
 
     function selectAvatarOption(emoji, element) {

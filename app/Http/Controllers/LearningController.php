@@ -813,6 +813,7 @@ class LearningController extends Controller
                 'user' => $user ? [
                     'id' => $user->id,
                     'username' => $user->username,
+                    'nis' => $user->nis,
                     'email' => $user->email,
                     'phone' => $user->phone
                 ] : null
@@ -839,6 +840,7 @@ class LearningController extends Controller
                     'user' => [
                         'id' => $u->id,
                         'username' => $u->username,
+                        'nis' => $u->nis,
                         'email' => $u->email,
                         'phone' => $u->phone
                     ]
@@ -1270,8 +1272,10 @@ class LearningController extends Controller
             'name' => 'required|string|max:255',
             'class' => 'nullable|string|max:50',
             'username' => 'required|string|max:50|alpha_dash|unique:users,username',
-            'email' => 'required|email|max:255|unique:users,email',
-            'password' => 'required|string|min:6',
+            'nis' => 'nullable|string|max:30|unique:users,nis',
+            'email' => 'nullable|email|max:255|unique:users,email',
+            'password' => 'nullable|string|min:4',
+            'pin' => 'nullable|string|max:10',
             'avatar' => 'nullable|string|max:10',
             'phone' => 'nullable|string|max:30',
             'score' => 'nullable|integer|min:0|max:100',
@@ -1280,13 +1284,19 @@ class LearningController extends Controller
         $avatar = $request->avatar ?: '🚀';
         $class = $request->class ?: 'Kelas 5-A';
         $score = $request->filled('score') ? (int) $request->score : 85;
+        $username = strtolower(trim($request->username));
+        $email = $request->filled('email') ? strtolower(trim($request->email)) : $username . '@sdsmadani.sch.id';
+        $pin = $request->filled('pin') ? trim($request->pin) : ($request->filled('password') ? trim($request->password) : '123456');
+        $nis = $request->filled('nis') ? trim($request->nis) : '2026' . rand(1000, 9999);
 
         // 1. Create User authentication record
         $user = User::create([
             'name' => $request->name,
-            'email' => strtolower($request->email),
-            'username' => strtolower($request->username),
-            'password' => Hash::make($request->password),
+            'email' => $email,
+            'username' => $username,
+            'nis' => $nis,
+            'password' => Hash::make($pin),
+            'pin' => Hash::make($pin),
             'role' => 'siswa',
             'avatar' => $avatar,
             'phone' => $request->phone,
@@ -1297,6 +1307,8 @@ class LearningController extends Controller
         $student->class = $class;
         $student->score = $score;
         $student->status = 'Aktif';
+        $student->nis = $nis;
+        $student->pin = $pin;
         $student->streak = $student->streak ?: 1;
         $student->xp = $student->xp ?: 100;
         $student->coins = $student->coins ?: 50;
@@ -1309,7 +1321,7 @@ class LearningController extends Controller
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Akun siswa berhasil dibuat! Username: ' . $user->username . ', Password: ' . $request->password,
+                'message' => 'Akun siswa berhasil dibuat! NIS: ' . $nis . ', Username: ' . $user->username . ', PIN: ' . $pin,
                 'data' => [
                     'user' => $user,
                     'student' => $student
@@ -1317,7 +1329,7 @@ class LearningController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Akun siswa "' . $user->name . '" berhasil dibuat! Siswa sekarang dapat login menggunakan username: ' . $user->username . ' atau email: ' . $user->email);
+        return redirect()->back()->with('success', 'Akun siswa "' . $user->name . '" berhasil dibuat! NIS: ' . $nis . ' | Username: ' . $user->username . ' | PIN: ' . $pin);
     }
 
     /**
@@ -1327,7 +1339,7 @@ class LearningController extends Controller
     {
         $request->validate([
             'user_id' => 'required|integer|exists:users,id',
-            'new_password' => 'required|string|min:6',
+            'new_password' => 'required|string|min:4',
         ]);
 
         $user = User::findOrFail($request->user_id);
@@ -1335,17 +1347,19 @@ class LearningController extends Controller
             return redirect()->back()->with('error', 'Hanya akun siswa yang dapat di-reset oleh guru.');
         }
 
-        $user->password = Hash::make($request->new_password);
+        $newSecret = trim($request->new_password);
+        $user->password = Hash::make($newSecret);
+        $user->pin = Hash::make($newSecret);
         $user->save();
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Password siswa ' . $user->name . ' berhasil diubah menjadi: ' . $request->new_password
+                'message' => 'PIN / Sandi siswa ' . $user->name . ' berhasil direset menjadi: ' . $newSecret
             ]);
         }
 
-        return redirect()->back()->with('success', 'Password akun siswa "' . $user->name . '" berhasil diperbarui!');
+        return redirect()->back()->with('success', 'PIN / Sandi siswa "' . $user->name . '" berhasil direset menjadi: ' . $newSecret);
     }
 
     /**

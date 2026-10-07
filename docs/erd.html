@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERD Designer & Viewer — Aplikasi SDS Madani</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --surface-color: #121826;
+            --surface-border: rgba(99, 102, 241, 0.16);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-purple: #8b5cf6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* ── Top Navbar ─────────────────────────────────── */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: rgba(11, 15, 25, 0.88);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--surface-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 1000;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+        }
+
+        .brand-text h1 {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: #fff;
+        }
+
+        .brand-text p {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 7px 14px;
+            border-radius: 9px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            color: #cbd5e1;
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-1px);
+        }
+
+        .btn-amber {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+        }
+
+        .badge-status {
+            font-size: 11px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            font-weight: 600;
+        }
+
+        /* ── Canvas Area ────────────────────────────────── */
+        .viewport {
+            position: absolute;
+            top: 64px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            background-color: #080c15;
+            cursor: grab;
+        }
+
+        .viewport:active {
+            cursor: grabbing;
+        }
+
+        .canvas-grid {
+            position: absolute;
+            width: 5000px;
+            height: 4000px;
+            transform-origin: 0 0;
+            background-image: 
+                radial-gradient(circle at 1px 1px, rgba(99, 102, 241, 0.08) 1.5px, transparent 0);
+            background-size: 32px 32px;
+        }
+
+        /* ── SVG Relationships ──────────────────────────── */
+        .links-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .link-path-glow {
+            stroke: rgba(99, 102, 241, 0.15);
+            stroke-width: 8px;
+            fill: none;
+        }
+
+        .link-path {
+            stroke: rgba(129, 140, 248, 0.6);
+            stroke-width: 2.2px;
+            fill: none;
+            stroke-linecap: round;
+        }
+
+        .link-path-dashed {
+            stroke: rgba(245, 158, 11, 0.6);
+            stroke-dasharray: 6 4;
+        }
+
+        .link-badge-bg {
+            fill: #0f1524;
+            stroke: rgba(99, 102, 241, 0.3);
+            stroke-width: 1px;
+            rx: 6;
+        }
+
+        .link-text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 10.5px;
+            font-weight: 600;
+            fill: #c7d2fe;
+        }
+
+        .cardinality-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            fill: #fbbf24;
+        }
+
+        /* ── Table Card ─────────────────────────────────── */
+        .entity-card {
+            position: absolute;
+            width: 320px;
+            background: rgba(18, 24, 38, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.45),
+                0 0 0 1px rgba(99, 102, 241, 0.08);
+            backdrop-filter: blur(12px);
+            z-index: 10;
+            cursor: grab;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .entity-card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 
+                0 14px 40px rgba(0, 0, 0, 0.55),
+                0 0 20px rgba(99, 102, 241, 0.15);
+        }
+
+        .entity-card.dragging {
+            cursor: grabbing;
+            z-index: 50;
+            border-color: #818cf8;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.7),
+                0 0 35px rgba(99, 102, 241, 0.35);
+        }
+
+        .card-header {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            border-top-left-radius: 13px;
+            border-top-right-radius: 13px;
+        }
+
+        .header-title-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-icon {
+            font-size: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .table-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .table-slug {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .card-body {
+            padding: 6px 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .field-row {
+            display: flex;
+            align-items: center;
+            padding: 5.5px 16px;
+            gap: 8px;
+            font-size: 11.5px;
+            transition: background 0.15s;
+        }
+
+        .field-row:hover {
+            background: rgba(99, 102, 241, 0.08);
+        }
+
+        .key-indicator {
+            width: 22px;
+            height: 18px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8.5px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .key-pk {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        .key-fk {
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.4);
+        }
+
+        .key-none {
+            background: rgba(148, 163, 184, 0.06);
+            color: #64748b;
+        }
+
+        .field-name {
+            flex: 1;
+            color: #e2e8f0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .field-type {
+            color: #94a3b8;
+            font-size: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .card-footer {
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 10.5px;
+            color: #64748b;
+        }
+
+        /* ── Card Themes ────────────────────────────────── */
+        .theme-indigo .card-header { background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.1)); }
+        .theme-indigo .table-icon { background: rgba(99,102,241,0.25); color: #818cf8; }
+
+        .theme-emerald .card-header { background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.1)); }
+        .theme-emerald .table-icon { background: rgba(16,185,129,0.25); color: #34d399; }
+
+        .theme-sky .card-header { background: linear-gradient(135deg, rgba(14,165,233,0.2), rgba(2,132,199,0.1)); }
+        .theme-sky .table-icon { background: rgba(14,165,233,0.25); color: #38bdf8; }
+
+        .theme-amber .card-header { background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(217,119,6,0.1)); }
+        .theme-amber .table-icon { background: rgba(245,158,11,0.25); color: #fbbf24; }
+
+        .theme-rose .card-header { background: linear-gradient(135deg, rgba(244,63,94,0.2), rgba(225,29,72,0.1)); }
+        .theme-rose .table-icon { background: rgba(244,63,94,0.25); color: #fb7185; }
+
+        .theme-violet .card-header { background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(124,58,237,0.1)); }
+        .theme-violet .table-icon { background: rgba(139,92,246,0.25); color: #c084fc; }
+
+        .theme-teal .card-header { background: linear-gradient(135deg, rgba(20,184,166,0.2), rgba(13,148,136,0.1)); }
+        .theme-teal .table-icon { background: rgba(20,184,166,0.25); color: #2dd4bf; }
+
+        .theme-orange .card-header { background: linear-gradient(135deg, rgba(249,115,22,0.2), rgba(234,88,12,0.1)); }
+        .theme-orange .table-icon { background: rgba(249,115,22,0.25); color: #fb923c; }
+
+        /* ── Floating Controls ──────────────────────────── */
+        .floating-controls {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            align-items: center;
+            background: rgba(18, 24, 38, 0.9);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            padding: 6px;
+            gap: 6px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .control-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            color: #cbd5e1;
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .control-btn:hover {
+            background: rgba(99, 102, 241, 0.2);
+            color: #fff;
+        }
+
+        .zoom-indicator {
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--text-muted);
+            padding: 0 8px;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        /* ── Toast Notification ─────────────────────────── */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #182234;
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            color: #fff;
+            padding: 12px 22px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 9999;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* ── Modal Pop-up ───────────────────────────────── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            width: 780px;
+            max-width: 90vw;
+            height: 600px;
+            max-height: 85vh;
+            background: #121826;
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-head {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .modal-tab {
+            padding: 6px 14px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .modal-tab.active {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .modal-code {
+            flex: 1;
+            padding: 16px;
+            background: #090d16;
+            color: #38bdf8;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow: auto;
+            white-space: pre;
+            border: none;
+            outline: none;
+            resize: none;
+        }
+
+        .modal-foot {
+            padding: 12px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Hidden file input */
+        #fileInput {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <header class="navbar">
+        <div class="nav-brand">
+            <a href="/" title="Kembali ke Aplikasi E-Learning SDS Madani" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+                <div class="brand-icon" style="background: #ffffff; padding: 2px; box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);">
+                    <img src="/images/logo.png" onerror="this.src='../public/images/logo.png'" alt="Logo SDS Madani" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;">
+                </div>
+            </a>
+            <div class="brand-text">
+                <h1>SDS Madani — ERD Designer</h1>
+                <p>8 Entitas • 3 Relasi Utama • Relasional MySQL</p>
+            </div>
+            <span class="badge-status" id="saveStatusBadge">● Posisi Default</span>
+            <a href="/" class="btn btn-ghost" style="text-decoration: none; font-size: 11px; padding: 5px 10px; margin-left: 6px;">🏠 Ke E-Learning</a>
+        </div>
+
+        <div class="nav-actions">
+            <button class="btn btn-success" onclick="saveLayout()">
+                <span>💾</span> Simpan Desain
+            </button>
+            <button class="btn btn-ghost" onclick="downloadDesignJSON()">
+                <span>📥</span> Unduh JSON
+            </button>
+            <button class="btn btn-ghost" onclick="document.getElementById('fileInput').click()">
+                <span>📂</span> Muat JSON
+            </button>
+            <button class="btn btn-primary" onclick="window.open('erd-sds-madani.pdf', '_blank')">
+                <span>📑</span> Buka / Unduh PDF
+            </button>
+            <button class="btn btn-ghost" onclick="exportPNG()">
+                <span>📷</span> Unduh PNG
+            </button>
+            <button class="btn btn-ghost" onclick="exportSVG()">
+                <span>🎨</span> Unduh SVG
+            </button>
+            <button class="btn btn-amber" onclick="openCodeModal()">
+                <span>📜</span> SQL & DBML
+            </button>
+            <button class="btn btn-ghost" onclick="resetLayout()">
+                <span>🔄</span> Reset
+            </button>
+        </div>
+    </header>
+
+    <!-- Hidden Input for Loading JSON -->
+    <input type="file" id="fileInput" accept=".json" onchange="handleFileLoad(event)">
+
+    <!-- Canvas Viewport -->
+    <main class="viewport" id="viewport">
+        <div class="canvas-grid" id="canvas">
+            <svg class="links-layer" id="linksSvg"></svg>
+            <!-- Entity Cards generated by JavaScript -->
+        </div>
+    </main>
+
+    <!-- Floating Zoom & Fit Controls -->
+    <div class="floating-controls">
+        <button class="control-btn" onclick="zoomIn()" title="Perbesar">+</button>
+        <div class="zoom-indicator" id="zoomText">85%</div>
+        <button class="control-btn" onclick="zoomOut()" title="Perkecil">−</button>
+        <button class="control-btn" onclick="fitScreen()" title="Paskan Layar">📐</button>
+        <button class="control-btn" onclick="resetView()" title="Tengah Layar">🎯</button>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span id="toastIcon">✅</span>
+        <span id="toastMsg">Desain berhasil disimpan!</span>
+    </div>
+
+    <!-- Modal SQL & DBML -->
+    <div class="modal-overlay" id="codeModal">
+        <div class="modal-box">
+            <div class="modal-head">
+                <div class="modal-tabs">
+                    <button class="modal-tab active" id="tabDbml" onclick="switchModalTab('dbml')">DBML (dbdiagram.io)</button>
+                    <button class="modal-tab" id="tabSql" onclick="switchModalTab('sql')">MySQL DDL</button>
+                </div>
+                <button class="btn btn-ghost" onclick="closeCodeModal()">✕ Tutup</button>
+            </div>
+            <textarea class="modal-code" id="modalCodeArea" readonly></textarea>
+            <div class="modal-foot">
+                <span style="font-size:11px;color:#64748b;">Gunakan kode ini di MySQL Workbench atau https://dbdiagram.io</span>
+                <button class="btn btn-primary" onclick="copyModalCode()">📋 Salin ke Clipboard</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════
+        //  1. DEFINISI DATA ENTITAS DAN RELASI
+        // ═══════════════════════════════════════════════════════
+        const defaultSchema = {
+            entities: [
+                {
+                    id: 'users',
+                    title: 'User (Pengguna)',
+                    table: 'users',
+                    icon: '👤',
+                    theme: 'indigo',
+                    x: 80, y: 70,
+                    fields: [
+                        { name: 'id', type: 'BIGINT', key: 'PK' },
+                        { name: 'name', type: 'VARCHAR(255)', key: '' },
+                        { name: 'username', type: 'VARCHAR(255)', key: 'UK' },
+                        { name: 'email', type: 'VARCHAR(255)', key: 'UK' },
+                        { name: 'role', type: 'VARCHAR(255)', key: '' },
+                        { name: 'avatar', type: 'VARCHAR(255)', key: '' },
+                        { name: 'phone', type: 'VARCHAR(255)', key: '' },
+                        { name: 'password', type: 'VARCHAR(255)', key: '' },
+                        { name: 'created_at', type: 'TIMESTAMP', key: '' },
+                        { name: 'updated_at', type: 'TIMESTAMP', key: '' }
+                    ]
+                },
+                {
+                    id: 'subjects',
+                    title: 'Mata Pelajaran',
+                    table: 'subjects',
+                    icon: '📚',
+                    theme: 'emerald',
+                    x: 480, y: 70,
+                    fields: [
+                        { name: 'id', type: 'VARCHAR(255)', key: 'PK' },
+                        { name: 'name', type: 'VARCHAR(255)', key: '' },
+                        { name: 'class', type: 'VARCHAR(255)', key: '' },
+                        { name: 'icon', type: 'VARCHAR(255)', key: '' },
+                        { name: 'color', type: 'VARCHAR(255)', key: '' },
+                        { name: 'bg_gradient', type: 'VARCHAR(255)', key: '' },
+                        { name: 'summary', type: 'TEXT', key: '' },
+                        { name: 'progress', type: 'INT', key: '' },
+                        { name: 'created_at', type: 'TIMESTAMP', key: '' },
+                        { name: 'updated_at', type: 'TIMESTAMP', key: '' }
+                    ]
+                },
+                {
+                    id: 'topics',
+                    title: 'Topik Materi',
+                    table: 'topics',
+                    icon: '📖',
+                    theme: 'sky',
+                    x: 880, y: 70,
+                    fields: [
+                        { name: 'id', type: 'VARCHAR(255)', key: 'PK' },
+                        { name: 'subject_id', type: 'VARCHAR(255)', key: 'FK' },
+                        { name: 'title', type: 'VARCHAR(255)', key: '' },
+                        { name: 'duration', type: 'VARCHAR(255)', key: '' },
+                        { name: 'difficulty', type: 'VARCHAR(255)', key: '' },
+                        { name: 'video_title', type: 'VARCHAR(255)', key: '' },
+                        { name: 'video_desc', type: 'TEXT', key: '' },
+                        { name: 'video_url', type: 'VARCHAR(500)', key: '' },
+                        { name: 'micro_steps', type: 'JSON', key: '' },
+                        { name: 'created_at', type: 'TIMESTAMP', key: '' },
+                        { name: 'updated_at', type: 'TIMESTAMP', key: '' }
+                    ]
+                },
+                {
+                    id: 'questions',
+                    title: 'Soal & Kuis',
+                    table: 'questions',
+                    icon: '❓',
+                    theme: 'amber',
+                    x: 880, y: 530,
+                    fields: [
+                        { name: 'id', type: 'BIGINT', key: 'PK' },
+                        { name: 'subject_id', type: 'VARCHAR(255)', key: 'FK' },
+                        { name: 'topic_id', type: 'VARCHAR(255)', key: 'FK' },
+                        { name: 'level', type: 'VARCHAR(255)', key: '' },
+                        { name: 'stars', type: 'VARCHAR(255)', key: '' },
+                        { name: 'question', type: 'TEXT', key: '' },
+                        { name: 'options', type: 'JSON', key: '' },
+                        { name: 'answer', type: 'INT', key: '' },
+                        { name: 'explanation', type: 'TEXT', key: '' },
+                        { name: 'is_daily', type: 'TINYINT(1)', key: '' },
+                        { name: 'created_at', type: 'TIMESTAMP', key: '' },
+                        { name: 'updated_at', type: 'TIMESTAMP', key: '' }
+                    ]
+                },
+                {
+                    id: 'students',
+                    title: 'Profil Siswa (Gamifikasi)',
+                    table: 'students',
+                    icon: '🎒',
+                    theme: 'rose',
+                    x: 80, y: 530,
+                    fields: [
+                        { name: 'id', type: 'BIGINT', key: 'PK' },
+                        { name: 'name', type: 'VARCHAR(255)', key: '' },
+                        { name: 'class', type: 'VARCHAR(255)', key: '' },
+                        { name: 'score', type: 'INT', key: '' },
+                        { name: 'status', type: 'VARCHAR(255)', key: '' },
+                        { name: 'streak', type: 'INT', key: '' },
+                        { name: 'xp', type: 'INT', key: '' },
+                        { name: 'coins', type: 'INT', key: '' },
+                        { name: 'avatar', type: 'VARCHAR(255)', key: '' },
+                        { name: 'level', type: 'INT', key: '' },
+                        { name: 'weakness', type: 'VARCHAR(255)', key: '' },
+                        { name: 'is_me', type: 'TINYINT(1)', key: '' }
+                    ]
+                },
+                {
+                    id: 'badges',
+                    title: 'Lencana Prestasi',
+                    table: 'badges',
+                    icon: '🏅',
+                    theme: 'violet',
+                    x: 480, y: 530,
+                    fields: [
+                        { name: 'id', type: 'VARCHAR(255)', key: 'PK' },
+                        { name: 'title', type: 'VARCHAR(255)', key: '' },
+                        { name: 'icon', type: 'VARCHAR(255)', key: '' },
+                        { name: 'desc', type: 'TEXT', key: '' },
+                        { name: 'unlocked', type: 'TINYINT(1)', key: '' },
+                        { name: 'unlocked_at', type: 'VARCHAR(255)', key: '' }
+                    ]
+                },
+                {
+                    id: 'announcements',
+                    title: 'Pengumuman',
+                    table: 'announcements',
+                    icon: '📢',
+                    theme: 'teal',
+                    x: 80, y: 990,
+                    fields: [
+                        { name: 'id', type: 'BIGINT', key: 'PK' },
+                        { name: 'title', type: 'VARCHAR(255)', key: '' },
+                        { name: 'date', type: 'VARCHAR(255)', key: '' },
+                        { name: 'desc', type: 'TEXT', key: '' },
+                        { name: 'created_at', type: 'TIMESTAMP', key: '' }
+                    ]
+                },
+                {
+                    id: 'parent_settings',
+                    title: 'Pengaturan Orang Tua',
+                    table: 'parent_settings',
+                    icon: '👨‍👩‍👧',
+                    theme: 'orange',
+                    x: 480, y: 990,
+                    fields: [
+                        { name: 'id', type: 'BIGINT', key: 'PK' },
+                        { name: 'child_name', type: 'VARCHAR(255)', key: '' },
+                        { name: 'wali_kelas', type: 'VARCHAR(255)', key: '' },
+                        { name: 'max_screen_time', type: 'INT', key: '' },
+                        { name: 'used_screen_time', type: 'INT', key: '' },
+                        { name: 'pin', type: 'VARCHAR(255)', key: '' },
+                        { name: 'study_time', type: 'VARCHAR(255)', key: '' }
+                    ]
+                }
+            ],
+            relationships: [
+                {
+                    from: 'subjects', fromField: 'id',
+                    to: 'topics', toField: 'subject_id',
+                    label: '1 : N (CASCADE)',
+                    fromCard: '1', toCard: 'N'
+                },
+                {
+                    from: 'subjects', fromField: 'id',
+                    to: 'questions', toField: 'subject_id',
+                    label: '1 : N (CASCADE)',
+                    fromCard: '1', toCard: 'N'
+                },
+                {
+                    from: 'topics', fromField: 'id',
+                    to: 'questions', toField: 'topic_id',
+                    label: '1 : N (SET NULL)',
+                    fromCard: '1', toCard: 'N',
+                    dashed: true
+                }
+            ]
+        };
+
+        // Active State
+        let entities = JSON.parse(JSON.stringify(defaultSchema.entities));
+        const relationships = defaultSchema.relationships;
+        const STORAGE_KEY = 'sds_madani_erd_layout_v1';
+
+        // Check LocalStorage
+        function loadSavedLayout() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    parsed.forEach(p => {
+                        const target = entities.find(e => e.id === p.id);
+                        if (target) {
+                            target.x = p.x;
+                            target.y = p.y;
+                        }
+                    });
+                    document.getElementById('saveStatusBadge').textContent = '● Posisi Tersimpan (Lokal)';
+                    document.getElementById('saveStatusBadge').style.color = '#34d399';
+                }
+            } catch (err) {
+                console.warn('Gagal memuat layout tersimpan:', err);
+            }
+        }
+        loadSavedLayout();
+
+        // ═══════════════════════════════════════════════════════
+        //  2. RENDERING CANVAS & ENTITAS
+        // ═══════════════════════════════════════════════════════
+        const canvas = document.getElementById('canvas');
+        const viewport = document.getElementById('viewport');
+        const linksSvg = document.getElementById('linksSvg');
+        const cardElements = {};
+
+        let scale = 0.85;
+        let panX = 40;
+        let panY = 20;
+        let isPanning = false;
+        let panStartX, panStartY;
+        let dragTarget = null;
+        let dragStartX, dragStartY;
+
+        function renderEntities() {
+            // Clear existing cards
+            document.querySelectorAll('.entity-card').forEach(el => el.remove());
+
+            entities.forEach(entity => {
+                const card = document.createElement('div');
+                card.className = `entity-card theme-${entity.theme}`;
+                card.id = `card-${entity.id}`;
+                card.style.left = `${entity.x}px`;
+                card.style.top = `${entity.y}px`;
+
+                const fieldsHtml = entity.fields.map(f => {
+                    const isPk = f.key === 'PK';
+                    const isFk = f.key === 'FK';
+                    const keyClass = isPk ? 'key-pk' : (isFk ? 'key-fk' : 'key-none');
+                    const keyText = f.key || '•';
+
+                    return `
+                        <div class="field-row">
+                            <span class="key-indicator ${keyClass}">${keyText}</span>
+                            <span class="field-name">${f.name}</span>
+                            <span class="field-type">${f.type}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="header-title-box">
+                            <div class="table-icon">${entity.icon}</div>
+                            <div>
+                                <div class="table-title">${entity.title}</div>
+                                <div class="table-slug">${entity.table}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        ${fieldsHtml}
+                    </div>
+                    <div class="card-footer">
+                        <span>${entity.fields.length} atribut</span>
+                        <span>MySQL InnoDB</span>
+                    </div>
+                `;
+
+                // Drag Entity Logic
+                card.addEventListener('mousedown', (e) => {
+                    if (e.target.closest('button')) return;
+                    dragTarget = entity;
+                    dragStartX = e.clientX / scale - entity.x;
+                    dragStartY = e.clientY / scale - entity.y;
+                    card.classList.add('dragging');
+                    e.stopPropagation();
+                });
+
+                canvas.appendChild(card);
+                cardElements[entity.id] = card;
+            });
+
+            renderLinks();
+            updateTransform();
+        }
+
+        // Render Connector Lines
+        function renderLinks() {
+            let svgHtml = '';
+
+            relationships.forEach(rel => {
+                const fromEl = cardElements[rel.from];
+                const toEl = cardElements[rel.to];
+                if (!fromEl || !toEl) return;
+
+                const fromEnt = entities.find(e => e.id === rel.from);
+                const toEnt = entities.find(e => e.id === rel.to);
+
+                const fromW = fromEl.offsetWidth;
+                const fromH = fromEl.offsetHeight;
+                const toW = toEl.offsetWidth;
+                const toH = toEl.offsetHeight;
+
+                // Center points
+                const fromCenterX = fromEnt.x + fromW / 2;
+                const fromCenterY = fromEnt.y + fromH / 2;
+                const toCenterX = toEnt.x + toW / 2;
+                const toCenterY = toEnt.y + toH / 2;
+
+                const dx = toCenterX - fromCenterX;
+                const dy = toCenterY - fromCenterY;
+
+                let fx, fy, tx, ty;
+
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    // Horizontal
+                    fx = dx > 0 ? fromEnt.x + fromW : fromEnt.x;
+                    fy = fromCenterY;
+                    tx = dx > 0 ? toEnt.x : toEnt.x + toW;
+                    ty = toCenterY;
+                } else {
+                    // Vertical
+                    fx = fromCenterX;
+                    fy = dy > 0 ? fromEnt.y + fromH : fromEnt.y;
+                    tx = toCenterX;
+                    ty = dy > 0 ? toEnt.y : toEnt.y + toH;
+                }
+
+                const dist = Math.abs(tx - fx) / 2;
+                const path = `M ${fx} ${fy} C ${fx + (dx > 0 ? dist : -dist)} ${fy}, ${tx - (dx > 0 ? dist : -dist)} ${ty}, ${tx} ${ty}`;
+
+                // Glow path
+                svgHtml += `<path class="link-path-glow" d="${path}" />`;
+                // Main path
+                const dashedClass = rel.dashed ? 'link-path-dashed' : '';
+                svgHtml += `<path class="link-path ${dashedClass}" d="${path}" />`;
+
+                // Badge mid-point
+                const midX = (fx + tx) / 2;
+                const midY = (fy + ty) / 2;
+                const badgeWidth = rel.label.length * 6.5 + 16;
+                svgHtml += `
+                    <rect class="link-badge-bg" x="${midX - badgeWidth / 2}" y="${midY - 10}" width="${badgeWidth}" height="20"></rect>
+                    <text class="link-text" x="${midX}" y="${midY + 4}" text-anchor="middle">${rel.label}</text>
+                `;
+
+                // Cardinality markers
+                svgHtml += `<text class="cardinality-text" x="${fx + (dx > 0 ? 12 : -12)}" y="${fy + 4}" text-anchor="middle">${rel.fromCard}</text>`;
+                svgHtml += `<text class="cardinality-text" x="${tx + (dx > 0 ? -12 : 12)}" y="${ty + 4}" text-anchor="middle">${rel.toCard}</text>`;
+            });
+
+            linksSvg.innerHTML = svgHtml;
+        }
+
+        function updateTransform() {
+            canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+            document.getElementById('zoomText').textContent = `${Math.round(scale * 100)}%`;
+        }
+
+        // ═══════════════════════════════════════════════════════
+        //  3. PAN, ZOOM, DAN INTERAKSI
+        // ═══════════════════════════════════════════════════════
+        viewport.addEventListener('mousedown', (e) => {
+            if (dragTarget) return;
+            isPanning = true;
+            panStartX = e.clientX - panX;
+            panStartY = e.clientY - panY;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (dragTarget) {
+                const newX = e.clientX / scale - dragStartX;
+                const newY = e.clientY / scale - dragStartY;
+                dragTarget.x = Math.max(0, Math.round(newX));
+                dragTarget.y = Math.max(0, Math.round(newY));
+
+                const el = cardElements[dragTarget.id];
+                el.style.left = `${dragTarget.x}px`;
+                el.style.top = `${dragTarget.y}px`;
+
+                renderLinks();
+            } else if (isPanning) {
+                panX = e.clientX - panStartX;
+                panY = e.clientY - panStartY;
+                updateTransform();
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (dragTarget) {
+                cardElements[dragTarget.id].classList.remove('dragging');
+                dragTarget = null;
+                document.getElementById('saveStatusBadge').textContent = '● Perubahan Belum Disimpan';
+                document.getElementById('saveStatusBadge').style.color = '#fbbf24';
+            }
+            isPanning = false;
+        });
+
+        viewport.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 0.05 : -0.05;
+            const newScale = Math.min(1.8, Math.max(0.35, scale + delta));
+
+            const rect = viewport.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            panX = mouseX - (mouseX - panX) * (newScale / scale);
+            panY = mouseY - (mouseY - panY) * (newScale / scale);
+            scale = newScale;
+            updateTransform();
+        }, { passive: false });
+
+        function zoomIn() {
+            scale = Math.min(1.8, scale + 0.1);
+            updateTransform();
+        }
+
+        function zoomOut() {
+            scale = Math.max(0.35, scale - 0.1);
+            updateTransform();
+        }
+
+        function resetView() {
+            panX = 40;
+            panY = 20;
+            scale = 0.85;
+            updateTransform();
+        }
+
+        function fitScreen() {
+            const vpRect = viewport.getBoundingClientRect();
+            let minX = Infinity, minY = Infinity, maxX = 0, maxY = 0;
+
+            entities.forEach(ent => {
+                const el = cardElements[ent.id];
+                if (!el) return;
+                minX = Math.min(minX, ent.x);
+                minY = Math.min(minY, ent.y);
+                maxX = Math.max(maxX, ent.x + el.offsetWidth);
+                maxY = Math.max(maxY, ent.y + el.offsetHeight);
+            });
+
+            const contentW = maxX - minX + 80;
+            const contentH = maxY - minY + 80;
+
+            scale = Math.min(
+                (vpRect.width - 60) / contentW,
+                (vpRect.height - 60) / contentH,
+                1.1
+            );
+
+            panX = (vpRect.width - contentW * scale) / 2 - minX * scale + 30;
+            panY = (vpRect.height - contentH * scale) / 2 - minY * scale + 30;
+            updateTransform();
+        }
+
+        // ═══════════════════════════════════════════════════════
+        //  4. FITUR SIMPAN & EKSPOR DESAIN
+        // ═══════════════════════════════════════════════════════
+
+        // A. Simpan ke LocalStorage
+        function saveLayout() {
+            const layoutData = entities.map(e => ({ id: e.id, x: e.x, y: e.y }));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(layoutData));
+            
+            document.getElementById('saveStatusBadge').textContent = '● Posisi Tersimpan (Lokal)';
+            document.getElementById('saveStatusBadge').style.color = '#34d399';
+            
+            showToast('✅ Tata letak ERD berhasil disimpan di browser!');
+        }
+
+        // B. Reset Layout ke Default
+        function resetLayout() {
+            localStorage.removeItem(STORAGE_KEY);
+            entities = JSON.parse(JSON.stringify(defaultSchema.entities));
+            renderEntities();
+            resetView();
+            document.getElementById('saveStatusBadge').textContent = '● Posisi Default';
+            document.getElementById('saveStatusBadge').style.color = '#a5b4fc';
+            showToast('🔄 Posisi ERD dikembalikan ke standar awal.');
+        }
+
+        // C. Unduh file konfigurasi JSON
+        function downloadDesignJSON() {
+            const fullConfig = {
+                project: 'Aplikasi SDS Madani',
+                version: '1.0.0',
+                exported_at: new Date().toISOString(),
+                canvas: { scale, panX, panY },
+                entities: entities,
+                relationships: relationships
+            };
+
+            const blob = new Blob([JSON.stringify(fullConfig, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sds-madani-erd-design-${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('📥 File erd-design.json berhasil diunduh!');
+        }
+
+        // D. Muat File JSON dari Komputer
+        function handleFileLoad(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const loaded = JSON.parse(e.target.result);
+                    if (loaded.entities && Array.isArray(loaded.entities)) {
+                        loaded.entities.forEach(loadedEnt => {
+                            const current = entities.find(e => e.id === loadedEnt.id);
+                            if (current) {
+                                current.x = loadedEnt.x;
+                                current.y = loadedEnt.y;
+                            }
+                        });
+                        saveLayout();
+                        renderEntities();
+                        showToast('📂 Desain ERD berhasil dimuat dari file JSON!');
+                    }
+                } catch (err) {
+                    alert('Format file JSON tidak valid!');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // E. Unduh SVG Murni
+        function exportSVG() {
+            const svgData = linksSvg.outerHTML;
+            const fullSvg = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="3000" height="2000" style="background:#080c15">
+                    ${linksSvg.innerHTML}
+                </svg>
+            `;
+            const blob = new Blob([fullSvg], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'erd-sds-madani.svg';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('🎨 File vektor SVG berhasil diunduh!');
+        }
+
+        // F. Unduh PNG (Screenshot Canvas via Canvas API)
+        function exportPNG() {
+            showToast('📷 Menyiapkan file PNG resolusi tinggi...');
+
+            // Create offscreen canvas
+            const offCanvas = document.createElement('canvas');
+            offCanvas.width = 2400;
+            offCanvas.height = 1600;
+            const ctx = offCanvas.getContext('2d');
+
+            // Draw dark background
+            ctx.fillStyle = '#080c15';
+            ctx.fillRect(0, 0, offCanvas.width, offCanvas.height);
+
+            // Watermark / Header
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 26px sans-serif';
+            ctx.fillText('Entity Relationship Diagram — Aplikasi SDS Madani', 60, 60);
+            ctx.fillStyle = '#64748b';
+            ctx.font = '16px sans-serif';
+            ctx.fillText('Desain Database E-Learning Kelas 4-6 | ' + new Date().toLocaleDateString('id-ID'), 60, 95);
+
+            // Draw Entities
+            entities.forEach(ent => {
+                const el = cardElements[ent.id];
+                if (!el) return;
+                const ex = ent.x + 20;
+                const ey = ent.y + 70;
+                const ew = el.offsetWidth;
+                const eh = el.offsetHeight;
+
+                // Card background
+                ctx.fillStyle = '#121826';
+                ctx.strokeStyle = 'rgba(99, 102, 241, 0.4)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(ex, ey, ew, eh, 12);
+                ctx.fill();
+                ctx.stroke();
+
+                // Card header
+                ctx.fillStyle = 'rgba(99, 102, 241, 0.2)';
+                ctx.beginPath();
+                ctx.roundRect(ex, ey, ew, 44, [12, 12, 0, 0]);
+                ctx.fill();
+
+                // Header text
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 15px sans-serif';
+                ctx.fillText(ent.icon + ' ' + ent.title, ex + 14, ey + 28);
+
+                // Fields
+                let rowY = ey + 70;
+                ent.fields.forEach(f => {
+                    ctx.font = 'bold 11px monospace';
+                    if (f.key === 'PK') ctx.fillStyle = '#fbbf24';
+                    else if (f.key === 'FK') ctx.fillStyle = '#818cf8';
+                    else ctx.fillStyle = '#64748b';
+                    ctx.fillText(f.key || '•', ex + 14, rowY);
+
+                    ctx.fillStyle = '#e2e8f0';
+                    ctx.font = '12px monospace';
+                    ctx.fillText(f.name, ex + 44, rowY);
+
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.font = '10px monospace';
+                    ctx.fillText(f.type, ex + ew - 85, rowY);
+
+                    rowY += 24;
+                });
+            });
+
+            // Convert and trigger download
+            offCanvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `erd-sds-madani-${new Date().toISOString().slice(0,10)}.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('✅ Berhasil mengunduh gambar ERD (PNG)!');
+            });
+        }
+
+        // G. Toast Helper
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3200);
+        }
+
+        // ═══════════════════════════════════════════════════════
+        //  5. MODAL CODE (SQL & DBML)
+        // ═══════════════════════════════════════════════════════
+        const dbmlCode = `// Database Markup Language (DBML)
+// SDS Madani - dbdiagram.io
+Table users {
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  username varchar(255) [unique, null]
+  email varchar(255) [unique, not null]
+  role varchar(255) [default: 'siswa']
+  avatar varchar(255) [default: '🚀']
+  phone varchar(255) [null]
+  password varchar(255) [not null]
+}
+
+Table subjects {
+  id varchar(255) [pk]
+  name varchar(255) [not null]
+  class varchar(255) [default: 'Kelas 4 - 6']
+  icon varchar(255)
+  color varchar(255)
+  progress int [default: 0]
+}
+
+Table topics {
+  id varchar(255) [pk]
+  subject_id varchar(255) [ref: > subjects.id]
+  title varchar(255) [not null]
+  duration varchar(255)
+  difficulty varchar(255)
+  video_url varchar(500)
+}
+
+Table questions {
+  id bigint [pk, increment]
+  subject_id varchar(255) [ref: > subjects.id]
+  topic_id varchar(255) [ref: > topics.id, null]
+  question text [not null]
+  options json [not null]
+  answer int [not null]
+}
+
+Table students {
+  id bigint [pk, increment]
+  name varchar(255)
+  score int [default: 85]
+  streak int [default: 1]
+  xp int [default: 100]
+  coins int [default: 50]
+}
+
+Table badges {
+  id varchar(255) [pk]
+  title varchar(255)
+  icon varchar(255)
+  unlocked boolean [default: false]
+}
+
+Table announcements {
+  id bigint [pk, increment]
+  title varchar(255)
+  date varchar(255)
+  desc text
+}
+
+Table parent_settings {
+  id bigint [pk, increment]
+  child_name varchar(255)
+  max_screen_time int [default: 45]
+  pin varchar(255) [default: '1234']
+}`;
+
+        const sqlCode = `-- MySQL DDL SDS Madani
+CREATE TABLE users (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  username VARCHAR(255) UNIQUE NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  role VARCHAR(255) NOT NULL DEFAULT 'siswa',
+  avatar VARCHAR(255) DEFAULT '🚀',
+  phone VARCHAR(255) NULL,
+  password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE subjects (
+  id VARCHAR(255) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  class VARCHAR(255) DEFAULT 'Kelas 4 - 6',
+  icon VARCHAR(255) NOT NULL,
+  color VARCHAR(255) NOT NULL,
+  progress INT DEFAULT 0
+);
+
+CREATE TABLE topics (
+  id VARCHAR(255) PRIMARY KEY,
+  subject_id VARCHAR(255) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  duration VARCHAR(255) NOT NULL,
+  video_url VARCHAR(500) NULL,
+  FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE
+);
+
+CREATE TABLE questions (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  subject_id VARCHAR(255) NOT NULL,
+  topic_id VARCHAR(255) NULL,
+  question TEXT NOT NULL,
+  options JSON NOT NULL,
+  answer INT NOT NULL,
+  FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
+  FOREIGN KEY (topic_id) REFERENCES topics(id) ON DELETE SET NULL
+);`;
+
+        let activeTab = 'dbml';
+
+        function openCodeModal() {
+            document.getElementById('codeModal').classList.add('active');
+            switchModalTab('dbml');
+        }
+
+        function closeCodeModal() {
+            document.getElementById('codeModal').classList.remove('active');
+        }
+
+        function switchModalTab(tab) {
+            activeTab = tab;
+            const area = document.getElementById('modalCodeArea');
+            if (tab === 'dbml') {
+                area.value = dbmlCode;
+                document.getElementById('tabDbml').classList.add('active');
+                document.getElementById('tabSql').classList.remove('active');
+            } else {
+                area.value = sqlCode;
+                document.getElementById('tabSql').classList.add('active');
+                document.getElementById('tabDbml').classList.remove('active');
+            }
+        }
+
+        function copyModalCode() {
+            const area = document.getElementById('modalCodeArea');
+            area.select();
+            navigator.clipboard.writeText(area.value);
+            showToast('📋 Kode berhasil disalin ke clipboard!');
+        }
+
+        // Initialize
+        renderEntities();
+        window.addEventListener('resize', () => {
+            renderLinks();
+        });
+    </script>
+</body>
+</html>

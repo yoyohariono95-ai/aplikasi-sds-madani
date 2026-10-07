@@ -53,8 +53,9 @@
 <!-- Hero Banner -->
 <section class="hero-banner">
     <div class="hero-content">
-        <div class="hero-badge-tag">
-            <span>🔥 Streak Belajar 7 Hari Aktif!</span>
+        <div class="hero-badge-tag" style="display: inline-flex; align-items: center; gap: 0.65rem;">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo SDS Madani" style="width: 22px; height: 22px; border-radius: 50%; background: #ffffff; padding: 1px; object-fit: contain; box-shadow: 0 0 10px rgba(99,102,241,0.5);">
+            <span>E-Learning Resmi SDS Al-Madani Pontianak Tenggara • SD Kelas 4-6</span>
         </div>
         <h1 class="hero-title">
             Belajar Jadi Petualangan Seru <span>Penuh Bintang!</span>
@@ -184,10 +185,12 @@
         <!-- Guest Role Showcase Card -->
         <div class="student-passport-card guest-passport-card">
             <div class="passport-header">
-                <div class="passport-avatar" style="background: rgba(99, 102, 241, 0.25);">🎒</div>
+                <div class="passport-avatar" style="background: #ffffff; padding: 2px; box-shadow: 0 0 15px rgba(99, 102, 241, 0.4); border: 1.5px solid rgba(255,255,255,0.85); display: flex; align-items: center; justify-content: center;">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo SDS Madani" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;">
+                </div>
                 <div class="passport-info">
-                    <h3>Pilih Peran Anda</h3>
-                    <p>Akses Tampilan Khusus SDS Madani</p>
+                    <h3>SDS Al-Madani</h3>
+                    <p>Portal E-Learning Terpadu Kelas 4-6</p>
                 </div>
             </div>
 

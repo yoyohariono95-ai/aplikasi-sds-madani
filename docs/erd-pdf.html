@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kamus Data & ERD — Aplikasi SDS Madani</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 14mm 12mm 16mm 12mm;
+        }
+
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #0f172a !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .page-break {
+                page-break-before: always;
+                break-before: page;
+            }
+            .table-block {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            font-size: 11px;
+            line-height: 1.5;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 820px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.06);
+            padding: 32px;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+            }
+            .container {
+                max-width: 100%;
+                box-shadow: none;
+                padding: 0;
+                border-radius: 0;
+            }
+        }
+
+        /* ── Action Bar (Screen Only) ───────────────── */
+        .action-bar {
+            background: #0f172a;
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .action-title {
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-print {
+            background: #6366f1;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn-print:hover {
+            background: #4f46e5;
+        }
+
+        /* ── Header / Cover ─────────────────────────── */
+        .doc-header {
+            border-bottom: 2.5px solid #4f46e5;
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+        .school-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .badge-logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 800;
+        }
+        .doc-title h1 {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+        }
+        .doc-title p {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .meta-box {
+            text-align: right;
+            font-size: 10px;
+            color: #64748b;
+        }
+        .meta-box strong {
+            color: #0f172a;
+        }
+
+        /* ── Info Summary Grid ──────────────────────── */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+        .summary-card {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 12px;
+            text-align: center;
+        }
+        .summary-num {
+            font-size: 18px;
+            font-weight: 800;
+            color: #4f46e5;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .summary-label {
+            font-size: 10px;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ── Section Titles ─────────────────────────── */
+        .section-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 18px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-left: 3.5px solid #4f46e5;
+            padding-left: 8px;
+        }
+
+        /* ── General Table Styles ───────────────────── */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+            margin-bottom: 14px;
+        }
+        th {
+            background: #0f172a;
+            color: #ffffff;
+            font-weight: 700;
+            text-align: left;
+            padding: 6px 8px;
+            font-size: 9.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        td {
+            padding: 5.5px 8px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+        tr:nth-child(even) td {
+            background: #f8fafc;
+        }
+
+        /* ── Entity Block ───────────────────────────── */
+        .table-block {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            background: #ffffff;
+        }
+        .table-header {
+            background: #f1f5f9;
+            border-bottom: 1.5px solid #cbd5e1;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .table-name {
+            font-weight: 800;
+            font-size: 12px;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .table-slug {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #4f46e5;
+            background: #e0e7ff;
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
+        .table-meta-tag {
+            font-size: 9.5px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        /* ── Badges ─────────────────────────────────── */
+        .badge {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 8.5px;
+            font-weight: 800;
+            padding: 1.5px 5px;
+            border-radius: 3px;
+            text-align: center;
+        }
+        .badge-pk {
+            background: #fef3c7;
+            color: #b45309;
+            border: 1px solid #fde68a;
+        }
+        .badge-fk {
+            background: #e0e7ff;
+            color: #4338ca;
+            border: 1px solid #c7d2fe;
+        }
+        .badge-uk {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+        .type-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9.5px;
+            color: #0284c7;
+            font-weight: 600;
+        }
+        .col-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 10px;
+        }
+        .nullable-yes {
+            color: #059669;
+            font-weight: 600;
+        }
+        .nullable-no {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        /* ── Relationships Matrix ───────────────────── */
+        .rel-table th {
+            background: #1e1b4b;
+        }
+        .rel-cardinality {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            color: #4f46e5;
+        }
+
+        /* ── Footer ─────────────────────────────────── */
+        .doc-footer {
+            margin-top: 24px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 9.5px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Action Bar (Hanya tampil di layar, tidak ikut tercetak di PDF) -->
+        <div class="action-bar no-print">
+            <div class="action-title">
+                <span>📄</span>
+                <span>Dokumen Resmi Kamus Data & ERD SDS Madani</span>
+            </div>
+            <button class="btn-print" onclick="window.print()">
+                🖨️ Cetak / Simpan sebagai PDF
+            </button>
+        </div>
+
+        <!-- Header Dokumen -->
+        <header class="doc-header">
+            <div class="school-badge">
+                <div class="badge-logo" style="background: white; border: 1.5px solid #cbd5e1; padding: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <img src="../public/images/logo.png" alt="Logo SDS Madani" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;">
+                </div>
+                <div class="doc-title">
+                    <h1>DOKUMEN DESAIN DATABASE & ERD</h1>
+                    <p>Aplikasi E-Learning SDS Madani Pontianak Tenggara • Tingkat Kelas 4, 5, dan 6</p>
+                </div>
+            </div>
+            <div class="meta-box">
+                <p><strong>Versi Dokumen:</strong> 1.0.0</p>
+                <p><strong>Tanggal Rilis:</strong> 07 Oktober 2026</p>
+                <p><strong>DBMS Target:</strong> MySQL 8.0+ / MariaDB</p>
+                <p><strong>Status:</strong> Produksi / Terverifikasi</p>
+            </div>
+        </header>
+
+        <!-- Summary Grid -->
+        <section class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-num">8</div>
+                <div class="summary-label">Total Entitas / Tabel</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-num">3</div>
+                <div class="summary-label">Relasi Foreign Key</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-num">72</div>
+                <div class="summary-label">Total Kolom / Atribut</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-num">InnoDB</div>
+                <div class="summary-label">Storage Engine</div>
+            </div>
+        </section>
+
+        <!-- Ringkasan Relasi -->
+        <h2 class="section-title">1. Matriks Relasi Antar Tabel (Foreign Key Constraints)</h2>
+        <table class="rel-table">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">No</th>
+                    <th style="width: 25%;">Tabel Anak (Foreign)</th>
+                    <th style="width: 15%;">Kolom FK</th>
+                    <th style="width: 25%;">Tabel Induk (Reference)</th>
+                    <th style="width: 15%;">Kolom PK</th>
+                    <th style="width: 15%;">Kardinalitas</th>
+                    <th style="width: 15%;">Aksi On Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td><strong class="col-name">topics</strong></td>
+                    <td><code>subject_id</code></td>
+                    <td><strong class="col-name">subjects</strong></td>
+                    <td><code>id</code></td>
+                    <td class="rel-cardinality">1 : N</td>
+                    <td><strong>CASCADE</strong></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td><strong class="col-name">questions</strong></td>
+                    <td><code>subject_id</code></td>
+                    <td><strong class="col-name">subjects</strong></td>
+                    <td><code>id</code></td>
+                    <td class="rel-cardinality">1 : N</td>
+                    <td><strong>CASCADE</strong></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td><strong class="col-name">questions</strong></td>
+                    <td><code>topic_id</code></td>
+                    <td><strong class="col-name">topics</strong></td>
+                    <td><code>id</code></td>
+                    <td class="rel-cardinality">1 : N (Opsional)</td>
+                    <td><strong>SET NULL</strong></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Kamus Data Entitas -->
+        <h2 class="section-title">2. Kamus Data & Spesifikasi Entitas</h2>
+
+        <!-- Tabel 1: users -->
+        <div class="table-block">
+            <div class="table-header">
+                <div class="table-name">
+                    <span>👤</span>
+                    <span>Tabel Pengguna Akun</span>
+                    <span class="table-slug">users</span>
+                </div>
+                <div class="table-meta-tag">12 Kolom • Autentikasi Terpadu Multi-Role</div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">No</th>
+                        <th style="width: 22%;">Nama Kolom</th>
+                        <th style="width: 18%;">Tipe Data</th>
+                        <th style="width: 8%;">Key</th>
+                        <th style="width: 8%;">Null?</th>
+                        <th style="width: 14%;">Default</th>
+                        <th style="width: 25%;">Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td><span class="col-name">id</span></td>
+                        <td><span class="type-code">bigint unsigned</span></td>
+                        <td><span class="badge badge-pk">PK</span></td>
+                        <td class="nullable-no">No</td>
+                        <td>auto_increment</td>
+                        <td>Identifier unik pengguna</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><span class="col-name">name</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Nama lengkap pengguna</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><span class="col-name">username</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td><span class="badge badge-uk">UK</span></td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Username unik untuk login alternatif</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><span class="col-name">email</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td><span class="badge badge-uk">UK</span></td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Alamat email utama login</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><span class="col-name">role</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>'siswa'</td>
+                        <td>Role: siswa, guru, orang_tua</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><span class="col-name">avatar</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>'🚀'</td>
+                        <td>Emoji avatar profil siswa/guru</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td><span class="col-name">phone</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Nomor telepon / WhatsApp</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td><span class="col-name">email_verified_at</span></td>
+                        <td><span class="type-code">timestamp</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Waktu verifikasi akun email</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td><span class="col-name">password</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Kata sandi terenkripsi (bcrypt)</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td><span class="col-name">remember_token</span></td>
+                        <td><span class="type-code">varchar(100)</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Token sesi remember me Laravel</td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td><span class="col-name">created_at</span></td>
+                        <td><span class="type-code">timestamp</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Waktu pembuatan akun</td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td><span class="col-name">updated_at</span></td>
+                        <td><span class="type-code">timestamp</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Waktu pembaruan akun</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- Tabel 2: subjects -->
+        <div class="table-block">
+            <div class="table-header">
+                <div class="table-name">
+                    <span>📚</span>
+                    <span>Tabel Mata Pelajaran</span>
+                    <span class="table-slug">subjects</span>
+                </div>
+                <div class="table-meta-tag">10 Kolom • Master Kurikulum Pembelajaran</div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">No</th>
+                        <th style="width: 22%;">Nama Kolom</th>
+                        <th style="width: 18%;">Tipe Data</th>
+                        <th style="width: 8%;">Key</th>
+                        <th style="width: 8%;">Null?</th>
+                        <th style="width: 14%;">Default</th>
+                        <th style="width: 25%;">Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td><span class="col-name">id</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td><span class="badge badge-pk">PK</span></td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Kode mapel string: 'math', 'ipa', dll</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><span class="col-name">name</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Nama mata pelajaran</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><span class="col-name">class</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>'Kelas 4 - 6'</td>
+                        <td>Tingkat kelas target</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><span class="col-name">icon</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Icon visual / emoji</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><span class="col-name">color</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Kode warna HEX badge</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><span class="col-name">bg_gradient</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>CSS gradasi kartu materi</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td><span class="col-name">summary</span></td>
+                        <td><span class="type-code">text</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Ringkasan kurikulum mapel</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td><span class="col-name">progress</span></td>
+                        <td><span class="type-code">int</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>0</td>
+                        <td>Persentase penyelesaian default</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td><span class="col-name">created_at</span></td>
+                        <td><span class="type-code">timestamp</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Waktu dibuat</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td><span class="col-name">updated_at</span></td>
+                        <td><span class="type-code">timestamp</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Waktu diperbarui</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tabel 3: topics -->
+        <div class="table-block">
+            <div class="table-header">
+                <div class="table-name">
+                    <span>📖</span>
+                    <span>Tabel Topik Materi</span>
+                    <span class="table-slug">topics</span>
+                </div>
+                <div class="table-meta-tag">11 Kolom • Modul Pembelajaran & Video YouTube</div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">No</th>
+                        <th style="width: 22%;">Nama Kolom</th>
+                        <th style="width: 18%;">Tipe Data</th>
+                        <th style="width: 8%;">Key</th>
+                        <th style="width: 8%;">Null?</th>
+                        <th style="width: 14%;">Default</th>
+                        <th style="width: 25%;">Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td><span class="col-name">id</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td><span class="badge badge-pk">PK</span></td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Kode unik topik materi</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><span class="col-name">subject_id</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td><span class="badge badge-fk">FK</span></td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Relasi ke subjects.id (CASCADE)</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><span class="col-name">title</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Judul topik modul</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><span class="col-name">duration</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Estimasi durasi (misal '15 Menit')</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><span class="col-name">difficulty</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Tingkat kesulitan (Mudah/Sedang/Sulit)</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><span class="col-name">video_title</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Judul video edukasi</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td><span class="col-name">video_desc</span></td>
+                        <td><span class="type-code">text</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Deskripsi ringkas materi video</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td><span class="col-name">video_url</span></td>
+                        <td><span class="type-code">varchar(500)</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>URL video YouTube / CDN edukasi</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td><span class="col-name">micro_steps</span></td>
+                        <td><span class="type-code">json</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Langkah pembelajaran mikro (JSON)</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td><span class="col-name">created_at</span></td>
+                        <td><span class="type-code">timestamp</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Waktu dibuat</td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td><span class="col-name">updated_at</span></td>
+                        <td><span class="type-code">timestamp</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Waktu diperbarui</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tabel 4: questions -->
+        <div class="table-block">
+            <div class="table-header">
+                <div class="table-name">
+                    <span>❓</span>
+                    <span>Tabel Soal & Kuis</span>
+                    <span class="table-slug">questions</span>
+                </div>
+                <div class="table-meta-tag">12 Kolom • Bank Kuis & Evaluasi Belajar</div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">No</th>
+                        <th style="width: 22%;">Nama Kolom</th>
+                        <th style="width: 18%;">Tipe Data</th>
+                        <th style="width: 8%;">Key</th>
+                        <th style="width: 8%;">Null?</th>
+                        <th style="width: 14%;">Default</th>
+                        <th style="width: 25%;">Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td><span class="col-name">id</span></td>
+                        <td><span class="type-code">bigint unsigned</span></td>
+                        <td><span class="badge badge-pk">PK</span></td>
+                        <td class="nullable-no">No</td>
+                        <td>auto_increment</td>
+                        <td>ID unik soal kuis</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><span class="col-name">subject_id</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td><span class="badge badge-fk">FK</span></td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Relasi ke subjects.id (CASCADE)</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><span class="col-name">topic_id</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td><span class="badge badge-fk">FK</span></td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Relasi ke topics.id (SET NULL)</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><span class="col-name">level</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>'Mudah'</td>
+                        <td>Level: Mudah, Sedang, Sulit, Harian</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><span class="col-name">stars</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>'★☆☆'</td>
+                        <td>Rating bintang kesulitan kuis</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><span class="col-name">question</span></td>
+                        <td><span class="type-code">text</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Teks pertanyaan kuis</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td><span class="col-name">options</span></td>
+                        <td><span class="type-code">json</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Array pilihan ganda dalam JSON</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td><span class="col-name">answer</span></td>
+                        <td><span class="type-code">int</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Index opsi benar (0-based)</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td><span class="col-name">explanation</span></td>
+                        <td><span class="type-code">text</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Pembahasan kunci jawaban</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td><span class="col-name">is_daily</span></td>
+                        <td><span class="type-code">tinyint(1)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>0</td>
+                        <td>True jika masuk bank kuis harian</td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td><span class="col-name">created_at</span></td>
+                        <td><span class="type-code">timestamp</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Waktu pembuatan soal</td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td><span class="col-name">updated_at</span></td>
+                        <td><span class="type-code">timestamp</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Waktu pembaruan soal</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- Tabel 5: students -->
+        <div class="table-block">
+            <div class="table-header">
+                <div class="table-name">
+                    <span>🎒</span>
+                    <span>Tabel Gamifikasi Siswa</span>
+                    <span class="table-slug">students</span>
+                </div>
+                <div class="table-meta-tag">14 Kolom • Skor, Streak, Koin & Level</div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">No</th>
+                        <th style="width: 22%;">Nama Kolom</th>
+                        <th style="width: 18%;">Tipe Data</th>
+                        <th style="width: 8%;">Key</th>
+                        <th style="width: 8%;">Null?</th>
+                        <th style="width: 14%;">Default</th>
+                        <th style="width: 25%;">Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td><span class="col-name">id</span></td>
+                        <td><span class="type-code">bigint unsigned</span></td>
+                        <td><span class="badge badge-pk">PK</span></td>
+                        <td class="nullable-no">No</td>
+                        <td>auto_increment</td>
+                        <td>Identifier siswa</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><span class="col-name">name</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Nama lengkap murid</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><span class="col-name">class</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>'Kelas 5-A'</td>
+                        <td>Rombongan belajar siswa</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><span class="col-name">score</span></td>
+                        <td><span class="type-code">int</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>85</td>
+                        <td>Skor rata-rata nilai latihan</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><span class="col-name">status</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>'Aktif'</td>
+                        <td>Status keaktifan belajar</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><span class="col-name">streak</span></td>
+                        <td><span class="type-code">int</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>1</td>
+                        <td>Jumlah hari beruntun belajar</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td><span class="col-name">xp</span></td>
+                        <td><span class="type-code">int</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>100</td>
+                        <td>Poin pengalaman belajar</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td><span class="col-name">coins</span></td>
+                        <td><span class="type-code">int</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>50</td>
+                        <td>Koin virtual penghargaan</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td><span class="col-name">avatar</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>'🚀'</td>
+                        <td>Karakter avatar siswa</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td><span class="col-name">level</span></td>
+                        <td><span class="type-code">int</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>1</td>
+                        <td>Tingkat level gamifikasi</td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td><span class="col-name">weakness</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Indikasi topik yang perlu evaluasi</td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td><span class="col-name">is_me</span></td>
+                        <td><span class="type-code">tinyint(1)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>0</td>
+                        <td>Penanda akun profil demo/aktif</td>
+                    </tr>
+                    <tr>
+                        <td>13</td>
+                        <td><span class="col-name">created_at</span></td>
+                        <td><span class="type-code">timestamp</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Waktu dibuat</td>
+                    </tr>
+                    <tr>
+                        <td>14</td>
+                        <td><span class="col-name">updated_at</span></td>
+                        <td><span class="type-code">timestamp</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Waktu diperbarui</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tabel 6: badges -->
+        <div class="table-block">
+            <div class="table-header">
+                <div class="table-name">
+                    <span>🏅</span>
+                    <span>Tabel Lencana Prestasi</span>
+                    <span class="table-slug">badges</span>
+                </div>
+                <div class="table-meta-tag">8 Kolom • Sistem Penghargaan Murid</div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">No</th>
+                        <th style="width: 22%;">Nama Kolom</th>
+                        <th style="width: 18%;">Tipe Data</th>
+                        <th style="width: 8%;">Key</th>
+                        <th style="width: 8%;">Null?</th>
+                        <th style="width: 14%;">Default</th>
+                        <th style="width: 25%;">Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td><span class="col-name">id</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td><span class="badge badge-pk">PK</span></td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Kode unik lencana (misal: 'streak_3')</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><span class="col-name">title</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Nama gelar lencana</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><span class="col-name">icon</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Simbol emoji lencana</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><span class="col-name">desc</span></td>
+                        <td><span class="type-code">text</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Persyaratan pencapaian lencana</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><span class="col-name">unlocked</span></td>
+                        <td><span class="type-code">tinyint(1)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>0</td>
+                        <td>Status keterbukaan lencana</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><span class="col-name">unlocked_at</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Waktu diraih oleh siswa</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td><span class="col-name">created_at</span></td>
+                        <td><span class="type-code">timestamp</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Waktu dibuat</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td><span class="col-name">updated_at</span></td>
+                        <td><span class="type-code">timestamp</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Waktu diperbarui</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tabel 7: announcements -->
+        <div class="table-block">
+            <div class="table-header">
+                <div class="table-name">
+                    <span>📢</span>
+                    <span>Tabel Pengumuman Sekolah</span>
+                    <span class="table-slug">announcements</span>
+                </div>
+                <div class="table-meta-tag">6 Kolom • Papan Informasi Murid & Orang Tua</div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">No</th>
+                        <th style="width: 22%;">Nama Kolom</th>
+                        <th style="width: 18%;">Tipe Data</th>
+                        <th style="width: 8%;">Key</th>
+                        <th style="width: 8%;">Null?</th>
+                        <th style="width: 14%;">Default</th>
+                        <th style="width: 25%;">Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td><span class="col-name">id</span></td>
+                        <td><span class="type-code">bigint unsigned</span></td>
+                        <td><span class="badge badge-pk">PK</span></td>
+                        <td class="nullable-no">No</td>
+                        <td>auto_increment</td>
+                        <td>ID pengumuman</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><span class="col-name">title</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Judul pengumuman resmi</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><span class="col-name">date</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Tanggal pengumuman diterbitkan</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><span class="col-name">desc</span></td>
+                        <td><span class="type-code">text</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>-</td>
+                        <td>Isi teks lengkap pengumuman</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><span class="col-name">created_at</span></td>
+                        <td><span class="type-code">timestamp</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Waktu dibuat</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><span class="col-name">updated_at</span></td>
+                        <td><span class="type-code">timestamp</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Waktu diperbarui</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tabel 8: parent_settings -->
+        <div class="table-block">
+            <div class="table-header">
+                <div class="table-name">
+                    <span>👨‍👩‍👧</span>
+                    <span>Tabel Pengaturan Orang Tua</span>
+                    <span class="table-slug">parent_settings</span>
+                </div>
+                <div class="table-meta-tag">9 Kolom • Parental Control & Screen Time</div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">No</th>
+                        <th style="width: 22%;">Nama Kolom</th>
+                        <th style="width: 18%;">Tipe Data</th>
+                        <th style="width: 8%;">Key</th>
+                        <th style="width: 8%;">Null?</th>
+                        <th style="width: 14%;">Default</th>
+                        <th style="width: 25%;">Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td><span class="col-name">id</span></td>
+                        <td><span class="type-code">bigint unsigned</span></td>
+                        <td><span class="badge badge-pk">PK</span></td>
+                        <td class="nullable-no">No</td>
+                        <td>auto_increment</td>
+                        <td>ID pengaturan orang tua</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><span class="col-name">child_name</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>'Doni Pratama'</td>
+                        <td>Nama anak yang dipantau</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><span class="col-name">wali_kelas</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>'Ibu Rahmawati, S.Pd.'</td>
+                        <td>Nama wali kelas yang bertugas</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><span class="col-name">max_screen_time</span></td>
+                        <td><span class="type-code">int</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>45</td>
+                        <td>Batas waktu layar harian (menit)</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><span class="col-name">used_screen_time</span></td>
+                        <td><span class="type-code">int</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>25</td>
+                        <td>Waktu layar yang telah terpakai (menit)</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><span class="col-name">pin</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>'1234'</td>
+                        <td>PIN keamanan akses orang tua</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td><span class="col-name">study_time</span></td>
+                        <td><span class="type-code">varchar(255)</span></td>
+                        <td>-</td>
+                        <td class="nullable-no">No</td>
+                        <td>'19:00'</td>
+                        <td>Jadwal jam belajar wajib harian</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td><span class="col-name">created_at</span></td>
+                        <td><span class="type-code">timestamp</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Waktu dibuat</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td><span class="col-name">updated_at</span></td>
+                        <td><span class="type-code">timestamp</span></td>
+                        <td>-</td>
+                        <td class="nullable-yes">Yes</td>
+                        <td>NULL</td>
+                        <td>Waktu diperbarui</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer Dokumen -->
+        <footer class="doc-footer">
+            <div>Aplikasi E-Learning SDS Madani • Dokumen Resmi Spesifikasi Database</div>
+            <div>Dicetak secara otomatis • Halaman Kamus Data & ERD</div>
+        </footer>
+    </div>
+
+</body>
+</html>

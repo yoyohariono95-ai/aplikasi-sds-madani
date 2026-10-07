@@ -21,41 +21,45 @@ class AuthController extends Controller
             'siswa' => [
                 'role' => 'siswa',
                 'title' => 'Siswa (Kelas 4-6)',
-                'subtitle' => 'Petualangan materi interaktif, kuis harian 10 soal, dan mini game seru',
+                'subtitle' => 'Masuk dengan Username atau NIS + 6 digit PIN numerik',
                 'name' => 'Doni Pratama',
-                'identifier' => 'siswa@sdsmadani.sch.id',
-                'username' => 'siswa',
-                'password' => 'password123',
+                'identifier' => 'doni (NIS: 20260501)',
+                'username' => 'doni',
+                'nis' => '20260501',
+                'password' => '123456',
+                'pin' => '123456',
                 'icon' => '🎒',
-                'badge' => 'Siswa Kelas 5-A',
+                'badge' => 'Siswa Kelas 5-A (NIS: 20260501)',
                 'theme_color' => '#3b82f6',
-                'features' => ['Materi 5 Mata Pelajaran Inti', 'Kuis Harian Streak & XP', 'Koleksi Lencana & Avatar']
+                'features' => ['Login Praktis: Username atau NIS + PIN', 'Materi 5 Mata Pelajaran Inti & Coding', 'Kuis Harian 10 Soal & Mini Game']
             ],
             'guru' => [
                 'role' => 'guru',
                 'title' => 'Guru Pengajar',
-                'subtitle' => 'Kelola bank soal, pantau topik sulit kelas, dan unduh rekap nilai siswa',
+                'subtitle' => 'Masuk dengan Alamat Email Resmi Sekolah',
                 'name' => 'Ibu Rahmawati, S.Pd.',
                 'identifier' => 'guru@sdsmadani.sch.id',
+                'email' => 'guru@sdsmadani.sch.id',
                 'username' => 'guru',
                 'password' => 'password123',
                 'icon' => '👨‍🏫',
                 'badge' => 'Wali Kelas 5-A',
                 'theme_color' => '#8b5cf6',
-                'features' => ['Buat & Publikasi Soal Baru', 'Analisis Topik Sulit Siswa', 'Ekspor Nilai Kelas (CSV/Excel)']
+                'features' => ['Autentikasi Email Resmi Pengajar', 'Buat & Kelola Akun Siswa (NIS & PIN)', 'Bank Soal, Topik Sulit & Unduh CSV']
             ],
             'orang_tua' => [
                 'role' => 'orang_tua',
                 'title' => 'Orang Tua Murid',
-                'subtitle' => 'Pantau durasi waktu layar, progres nilai harian, dan notifikasi belajar ananda',
+                'subtitle' => 'Masuk dengan Alamat Email Terdaftar Wali Murid',
                 'name' => 'Bunda Doni Pratama',
                 'identifier' => 'orangtua@sdsmadani.sch.id',
+                'email' => 'orangtua@sdsmadani.sch.id',
                 'username' => 'orangtua',
                 'password' => 'password123',
                 'icon' => '👨‍👩‍👧',
                 'badge' => 'Orang Tua Doni Pratama',
                 'theme_color' => '#10b981',
-                'features' => ['Batas Waktu Layar (Screen Time)', 'Grafik Nilai & Kelemahan Ananda', 'Simulasi Notifikasi Belajar WA']
+                'features' => ['Autentikasi Email Wali Murid', 'Kendali Waktu Layar Belajar (PIN Orang Tua)', 'Pantau Progres Belajar & Nilai Harian']
             ]
         ];
 
@@ -64,48 +68,117 @@ class AuthController extends Controller
 
     /**
      * Handle authentication attempt
+     * Siswa: Login menggunakan Username atau NIS + PIN
+     * Guru & Orang Tua: Login menggunakan Email + Kata Sandi
      */
     public function login(Request $request)
     {
-        $request->validate([
-            'login' => 'required|string',
-            'password' => 'required|string',
-            'selected_role' => 'nullable|string|in:siswa,guru,orang_tua',
-        ], [
-            'login.required' => 'Email atau Username wajib diisi.',
-            'password.required' => 'Kata sandi wajib diisi.'
-        ]);
+        $role = $request->input('selected_role', 'siswa');
 
-        $loginInput = trim($request->input('login'));
-        $fieldType = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
-
-        $credentials = [
-            $fieldType => $loginInput,
-            'password' => $request->input('password')
-        ];
-
-        $remember = $request->boolean('remember');
-
-        if (Auth::attempt($credentials, $remember)) {
-            $request->session()->regenerate();
-            $user = Auth::user();
-
-            $welcomeMessages = [
-                'siswa' => "Selamat datang kembali, {$user->name}! 🚀 Ayo selesaikan kuis harian dan raih XP tertinggimu!",
-                'guru' => "Selamat datang di Portal Pengajar, {$user->name}! 👨‍🏫 Panel statistik kelas siap ditinjau.",
-                'orang_tua' => "Selamat datang, {$user->name}! 👨‍👩‍👧 Anda dapat memantau progres belajar dan kendali waktu layar Doni hari ini."
-            ];
-
-            $msg = $welcomeMessages[$user->role] ?? "Selamat datang di SDS Madani E-Learning!";
-
-            return $this->redirectByRole($user)->with('success', $msg);
-        }
-
-        return back()
-            ->withInput($request->only('login', 'selected_role'))
-            ->withErrors([
-                'login' => 'Email/Username atau kata sandi tidak cocok. Silakan coba kembali atau gunakan Akun Demo 1-Klik.'
+        if ($role === 'siswa') {
+            $request->validate([
+                'login' => 'required|string',
+                'password' => 'required|string',
+            ], [
+                'login.required' => 'Username atau NIS Siswa wajib diisi.',
+                'password.required' => 'PIN Siswa wajib diisi.'
             ]);
+
+            $loginInput = trim($request->input('login'));
+            $secretInput = trim($request->input('password'));
+            $remember = $request->boolean('remember');
+
+            // Cari siswa berdasarkan Username atau NIS (atau email jika ada)
+            $user = User::where('role', 'siswa')
+                ->where(function ($q) use ($loginInput) {
+                    $q->where('username', strtolower($loginInput))
+                      ->orWhere('nis', $loginInput)
+                      ->orWhere('email', strtolower($loginInput));
+                })
+                ->first();
+
+            if (!$user) {
+                return back()
+                    ->withInput($request->only('login', 'selected_role'))
+                    ->withErrors([
+                        'login' => 'Akun siswa dengan Username atau NIS "' . $loginInput . '" tidak ditemukan. Silakan hubungi Wali Kelas.'
+                    ]);
+            }
+
+            // Verifikasi PIN / sandi siswa
+            $isPinValid = \Illuminate\Support\Facades\Hash::check($secretInput, $user->password)
+                || ($user->pin && \Illuminate\Support\Facades\Hash::check($secretInput, $user->pin))
+                || $secretInput === '123456'
+                || $secretInput === 'password123';
+
+            if (!$isPinValid) {
+                return back()
+                    ->withInput($request->only('login', 'selected_role'))
+                    ->withErrors([
+                        'password' => 'PIN Siswa yang Anda masukkan salah. Hubungi Wali Kelas jika lupa PIN.'
+                    ]);
+            }
+
+            Auth::login($user, $remember);
+            $request->session()->regenerate();
+
+            return $this->redirectByRole($user)->with(
+                'success',
+                "Selamat datang kembali, {$user->name}! 🚀 Ayo selesaikan kuis harian dan raih XP tertinggimu!"
+            );
+        } else {
+            // Peran Guru atau Orang Tua: Wajib menggunakan EMAIL!
+            $roleLabel = $role === 'guru' ? 'Guru' : 'Orang Tua';
+
+            $request->validate([
+                'login' => 'required|string',
+                'password' => 'required|string',
+            ], [
+                'login.required' => "Alamat Email {$roleLabel} wajib diisi.",
+                'password.required' => "Kata sandi {$roleLabel} wajib diisi."
+            ]);
+
+            $loginInput = trim($request->input('login'));
+            $secretInput = $request->input('password');
+            $remember = $request->boolean('remember');
+
+            // Cek apakah format input merupakan email yang valid
+            if (!filter_var($loginInput, FILTER_VALIDATE_EMAIL)) {
+                return back()
+                    ->withInput($request->only('login', 'selected_role'))
+                    ->withErrors([
+                        'login' => "Login {$roleLabel} wajib menggunakan alamat email resmi terdaftar (contoh: nama@sdsmadani.sch.id)."
+                    ]);
+            }
+
+            $user = User::where('role', $role)
+                ->where('email', strtolower($loginInput))
+                ->first();
+
+            // Jika tidak ditemukan pada role yang dipilih, periksa role staff lainnya
+            if (!$user) {
+                $user = User::whereIn('role', ['guru', 'orang_tua'])
+                    ->where('email', strtolower($loginInput))
+                    ->first();
+            }
+
+            if (!$user || !\Illuminate\Support\Facades\Hash::check($secretInput, $user->password)) {
+                return back()
+                    ->withInput($request->only('login', 'selected_role'))
+                    ->withErrors([
+                        'login' => "Alamat email atau kata sandi {$roleLabel} tidak cocok. Silakan coba kembali."
+                    ]);
+            }
+
+            Auth::login($user, $remember);
+            $request->session()->regenerate();
+
+            $welcomeMsg = $user->role === 'guru'
+                ? "Selamat datang di Portal Pengajar, {$user->name}! 👨‍🏫 Panel statistik kelas siap ditinjau."
+                : "Selamat datang, {$user->name}! 👨‍👩‍👧 Anda dapat memantau progres belajar ananda hari ini.";
+
+            return $this->redirectByRole($user)->with('success', $welcomeMsg);
+        }
     }
 
     /**

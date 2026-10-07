@@ -1,0 +1,208 @@
+{
+  "project": "Aplikasi SDS Madani",
+  "version": "1.0.0",
+  "updated_at": "2026-10-07",
+  "description": "Desain skema database dan tata letak ERD untuk sistem pembelajaran digital SDS Madani",
+  "canvas": {
+    "zoom": 0.85,
+    "panX": 60,
+    "panY": 20
+  },
+  "entities": [
+    {
+      "id": "users",
+      "tableName": "users",
+      "label": "User (Akun Pengguna)",
+      "icon": "👤",
+      "color": "indigo",
+      "position": { "x": 80, "y": 80 },
+      "fields": [
+        { "name": "id", "type": "bigint unsigned", "key": "PK", "nullable": false, "extra": "AUTO_INCREMENT" },
+        { "name": "name", "type": "varchar(255)", "nullable": false },
+        { "name": "username", "type": "varchar(255)", "nullable": true, "unique": true },
+        { "name": "email", "type": "varchar(255)", "nullable": false, "unique": true },
+        { "name": "role", "type": "varchar(255)", "nullable": false, "default": "'siswa'" },
+        { "name": "avatar", "type": "varchar(255)", "nullable": true, "default": "'🚀'" },
+        { "name": "phone", "type": "varchar(255)", "nullable": true },
+        { "name": "email_verified_at", "type": "timestamp", "nullable": true },
+        { "name": "password", "type": "varchar(255)", "nullable": false },
+        { "name": "remember_token", "type": "varchar(100)", "nullable": true },
+        { "name": "created_at", "type": "timestamp", "nullable": true },
+        { "name": "updated_at", "type": "timestamp", "nullable": true }
+      ]
+    },
+    {
+      "id": "subjects",
+      "tableName": "subjects",
+      "label": "Mata Pelajaran",
+      "icon": "📚",
+      "color": "emerald",
+      "position": { "x": 480, "y": 80 },
+      "fields": [
+        { "name": "id", "type": "varchar(255)", "key": "PK", "nullable": false },
+        { "name": "name", "type": "varchar(255)", "nullable": false },
+        { "name": "class", "type": "varchar(255)", "nullable": false, "default": "'Kelas 4 - 6'" },
+        { "name": "icon", "type": "varchar(255)", "nullable": false },
+        { "name": "color", "type": "varchar(255)", "nullable": false },
+        { "name": "bg_gradient", "type": "varchar(255)", "nullable": false },
+        { "name": "summary", "type": "text", "nullable": false },
+        { "name": "progress", "type": "int", "nullable": false, "default": "0" },
+        { "name": "created_at", "type": "timestamp", "nullable": true },
+        { "name": "updated_at", "type": "timestamp", "nullable": true }
+      ]
+    },
+    {
+      "id": "topics",
+      "tableName": "topics",
+      "label": "Topik Materi",
+      "icon": "📖",
+      "color": "sky",
+      "position": { "x": 880, "y": 80 },
+      "fields": [
+        { "name": "id", "type": "varchar(255)", "key": "PK", "nullable": false },
+        { "name": "subject_id", "type": "varchar(255)", "key": "FK", "nullable": false },
+        { "name": "title", "type": "varchar(255)", "nullable": false },
+        { "name": "duration", "type": "varchar(255)", "nullable": false },
+        { "name": "difficulty", "type": "varchar(255)", "nullable": false },
+        { "name": "video_title", "type": "varchar(255)", "nullable": false },
+        { "name": "video_desc", "type": "text", "nullable": false },
+        { "name": "video_url", "type": "varchar(500)", "nullable": true },
+        { "name": "micro_steps", "type": "json", "nullable": false },
+        { "name": "created_at", "type": "timestamp", "nullable": true },
+        { "name": "updated_at", "type": "timestamp", "nullable": true }
+      ]
+    },
+    {
+      "id": "questions",
+      "tableName": "questions",
+      "label": "Soal / Kuis",
+      "icon": "❓",
+      "color": "amber",
+      "position": { "x": 880, "y": 550 },
+      "fields": [
+        { "name": "id", "type": "bigint unsigned", "key": "PK", "nullable": false, "extra": "AUTO_INCREMENT" },
+        { "name": "subject_id", "type": "varchar(255)", "key": "FK", "nullable": false },
+        { "name": "topic_id", "type": "varchar(255)", "key": "FK", "nullable": true },
+        { "name": "level", "type": "varchar(255)", "nullable": false, "default": "'Mudah'" },
+        { "name": "stars", "type": "varchar(255)", "nullable": false, "default": "'★☆☆'" },
+        { "name": "question", "type": "text", "nullable": false },
+        { "name": "options", "type": "json", "nullable": false },
+        { "name": "answer", "type": "int", "nullable": false },
+        { "name": "explanation", "type": "text", "nullable": false },
+        { "name": "is_daily", "type": "tinyint(1)", "nullable": false, "default": "0" },
+        { "name": "created_at", "type": "timestamp", "nullable": true },
+        { "name": "updated_at", "type": "timestamp", "nullable": true }
+      ]
+    },
+    {
+      "id": "students",
+      "tableName": "students",
+      "label": "Siswa (Gamifikasi)",
+      "icon": "🎒",
+      "color": "rose",
+      "position": { "x": 80, "y": 550 },
+      "fields": [
+        { "name": "id", "type": "bigint unsigned", "key": "PK", "nullable": false, "extra": "AUTO_INCREMENT" },
+        { "name": "name", "type": "varchar(255)", "nullable": false },
+        { "name": "class", "type": "varchar(255)", "nullable": false, "default": "'Kelas 5-A'" },
+        { "name": "score", "type": "int", "nullable": false, "default": "85" },
+        { "name": "status", "type": "varchar(255)", "nullable": false, "default": "'Aktif'" },
+        { "name": "streak", "type": "int", "nullable": false, "default": "1" },
+        { "name": "xp", "type": "int", "nullable": false, "default": "100" },
+        { "name": "coins", "type": "int", "nullable": false, "default": "50" },
+        { "name": "avatar", "type": "varchar(255)", "nullable": false, "default": "'🚀'" },
+        { "name": "level", "type": "int", "nullable": false, "default": "1" },
+        { "name": "weakness", "type": "varchar(255)", "nullable": true },
+        { "name": "is_me", "type": "tinyint(1)", "nullable": false, "default": "0" },
+        { "name": "created_at", "type": "timestamp", "nullable": true },
+        { "name": "updated_at", "type": "timestamp", "nullable": true }
+      ]
+    },
+    {
+      "id": "badges",
+      "tableName": "badges",
+      "label": "Lencana (Achievement)",
+      "icon": "🏅",
+      "color": "violet",
+      "position": { "x": 480, "y": 550 },
+      "fields": [
+        { "name": "id", "type": "varchar(255)", "key": "PK", "nullable": false },
+        { "name": "title", "type": "varchar(255)", "nullable": false },
+        { "name": "icon", "type": "varchar(255)", "nullable": false },
+        { "name": "desc", "type": "text", "nullable": false },
+        { "name": "unlocked", "type": "tinyint(1)", "nullable": false, "default": "0" },
+        { "name": "unlocked_at", "type": "varchar(255)", "nullable": true },
+        { "name": "created_at", "type": "timestamp", "nullable": true },
+        { "name": "updated_at", "type": "timestamp", "nullable": true }
+      ]
+    },
+    {
+      "id": "announcements",
+      "tableName": "announcements",
+      "label": "Pengumuman",
+      "icon": "📢",
+      "color": "teal",
+      "position": { "x": 80, "y": 1000 },
+      "fields": [
+        { "name": "id", "type": "bigint unsigned", "key": "PK", "nullable": false, "extra": "AUTO_INCREMENT" },
+        { "name": "title", "type": "varchar(255)", "nullable": false },
+        { "name": "date", "type": "varchar(255)", "nullable": false },
+        { "name": "desc", "type": "text", "nullable": false },
+        { "name": "created_at", "type": "timestamp", "nullable": true },
+        { "name": "updated_at", "type": "timestamp", "nullable": true }
+      ]
+    },
+    {
+      "id": "parent_settings",
+      "tableName": "parent_settings",
+      "label": "Pengaturan Orang Tua",
+      "icon": "👨‍👩‍👧",
+      "color": "orange",
+      "position": { "x": 480, "y": 1000 },
+      "fields": [
+        { "name": "id", "type": "bigint unsigned", "key": "PK", "nullable": false, "extra": "AUTO_INCREMENT" },
+        { "name": "child_name", "type": "varchar(255)", "nullable": false, "default": "'Doni Pratama'" },
+        { "name": "wali_kelas", "type": "varchar(255)", "nullable": false, "default": "'Ibu Rahmawati, S.Pd.'" },
+        { "name": "max_screen_time", "type": "int", "nullable": false, "default": "45" },
+        { "name": "used_screen_time", "type": "int", "nullable": false, "default": "25" },
+        { "name": "pin", "type": "varchar(255)", "nullable": false, "default": "'1234'" },
+        { "name": "study_time", "type": "varchar(255)", "nullable": false, "default": "'19:00'" },
+        { "name": "created_at", "type": "timestamp", "nullable": true },
+        { "name": "updated_at", "type": "timestamp", "nullable": true }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "rel_subjects_topics",
+      "from": "subjects",
+      "fromField": "id",
+      "to": "topics",
+      "toField": "subject_id",
+      "cardinality": "1:N",
+      "onDelete": "CASCADE",
+      "label": "has many topics"
+    },
+    {
+      "id": "rel_subjects_questions",
+      "from": "subjects",
+      "fromField": "id",
+      "to": "questions",
+      "toField": "subject_id",
+      "cardinality": "1:N",
+      "onDelete": "RESTRICT",
+      "label": "has many questions"
+    },
+    {
+      "id": "rel_topics_questions",
+      "from": "topics",
+      "fromField": "id",
+      "to": "questions",
+      "toField": "topic_id",
+      "cardinality": "1:N",
+      "optional": true,
+      "onDelete": "SET NULL",
+      "label": "belongs to topic (optional)"
+    }
+  ]
+}

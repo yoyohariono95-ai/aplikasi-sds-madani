@@ -19,6 +19,18 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Public Landing Page
 Route::get('/', [LearningController::class, 'index'])->name('home');
 
+// Interactive ERD Visualizer & Designer
+Route::get('/erd', function () {
+    return response()->file(base_path('docs/erd.html'));
+})->name('erd');
+
+Route::get('/erd/pdf', function () {
+    return response()->file(base_path('docs/erd-sds-madani.pdf'), [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'inline; filename="erd-sds-madani.pdf"'
+    ]);
+})->name('erd.pdf');
+
 // Protected Student Learning, Quiz & Gamification Routes (Must Login First)
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/belajar', [LearningController::class, 'learning'])->name('learning.index');

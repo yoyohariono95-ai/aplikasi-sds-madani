@@ -6,6 +6,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'SDS Madani E-Learning SD Kelas 4-6')</title>
     <meta name="description" content="Aplikasi Pembelajaran Interaktif SDS Madani Kelas 4-6: Matematika, IPA, IPS, Bahasa Indonesia, Bahasa Inggris dengan Gamifikasi, Kuis, Portal Guru & Orang Tua.">
+    <!-- Favicon & School Brand Icons -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/logo.png') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('images/logo-512.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo-512.png') }}">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,11 +28,16 @@
     <!-- Main Navigation Bar -->
     <header class="app-header">
         <div class="nav-container">
-            <!-- Brand Logo -->
+            <!-- Brand Logo SDS Madani Pontianak -->
             <div class="nav-brand">
-                <a href="{{ route('home') }}" class="brand-link" title="Beranda SDS Madani">
-                    <span class="brand-icon">🚀</span>
-                    <span class="brand-text">SDS MADANI</span>
+                <a href="{{ route('home') }}" class="brand-link" title="Beranda E-Learning SDS Madani Pontianak Tenggara">
+                    <div class="brand-logo-wrapper">
+                        <img src="{{ asset('images/logo.png') }}" alt="Logo SDS Madani Pontianak Tenggara" class="brand-logo-img">
+                    </div>
+                    <div class="brand-title-box">
+                        <span class="brand-text">SDS MADANI</span>
+                        <span class="brand-subtext">PONTIANAK TENGGARA</span>
+                    </div>
                     <span class="badge-grade">SD KELAS 4-6</span>
                 </a>
             </div>
@@ -206,10 +216,12 @@
     <aside class="mobile-nav-drawer" id="mobileNavDrawer">
         <div class="mobile-drawer-header">
             <div class="drawer-brand">
-                <span style="font-size: 1.5rem;">🚀</span>
+                <div class="brand-logo-wrapper" style="width: 44px; height: 44px;">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo SDS Madani" class="brand-logo-img">
+                </div>
                 <div>
-                    <div style="font-family: var(--font-heading); font-size: 1.15rem; color: white; font-weight: 700;">SDS MADANI</div>
-                    <div style="font-size: 0.7rem; color: #a5b4fc; font-weight: 700;">E-LEARNING SD KELAS 4-6</div>
+                    <div style="font-family: var(--font-heading); font-size: 1.15rem; color: white; font-weight: 700; line-height: 1.2;">SDS MADANI</div>
+                    <div style="font-size: 0.68rem; color: #a5b4fc; font-weight: 700; letter-spacing: 0.5px;">AL-MADANI PONTIANAK TENGGARA</div>
                 </div>
             </div>
             <button class="btn-drawer-close" onclick="closeMobileDrawer()" aria-label="Tutup Menu">✕</button>
@@ -395,13 +407,6 @@
 
     <!-- Screen Time Warning Indicator (Only for Siswa or Guest) -->
     @if(!Auth::check() || Auth::user()->isSiswa())
-        <div class="screen-time-bar" id="screenTimeBar">
-            <div class="screen-time-info">
-                <span>⏱️ Waktu Belajar Hari Ini: <strong><span id="screenTimeUsedText">25</span> / <span id="screenTimeLimitText">45</span> Menit</strong> (Sisa <strong id="screenTimeRemainingText" style="color: #38bdf8;">20</strong> Menit)</span>
-                <a href="{{ route('parent.index') }}" class="link-manage-time">⚙️ Atur di Portal Orang Tua</a>
-            </div>
-        </div>
-
         <!-- Screen Time Out Overlay Modal (Locks screen when time reaches 0) -->
         <div id="screenTimeLockModal" style="display: none; position: fixed; inset: 0; background: rgba(2,6,23,0.96); backdrop-filter: blur(20px); z-index: 99999; align-items: center; justify-content: center; padding: 2rem;">
             <div class="glass-panel" style="max-width: 480px; width: 100%; text-align: center; border-color: #ef4444; box-shadow: 0 0 50px rgba(239,68,68,0.4);">
@@ -418,6 +423,72 @@
             </div>
         </div>
     @endif
+
+    <!-- Official School Footer -->
+    <footer class="app-footer">
+        <div class="footer-container">
+            <div class="footer-brand-section">
+                <div class="footer-brand-header">
+                    <div class="footer-logo-wrapper">
+                        <img src="{{ asset('images/logo.png') }}" alt="Logo Resmi SDS Al-Madani Pontianak" class="footer-logo-img">
+                    </div>
+                    <div>
+                        <div class="footer-school-name">SDS AL - MADANI</div>
+                        <div class="footer-school-sub">PONTIANAK TENGGARA</div>
+                    </div>
+                </div>
+                <p class="footer-desc">
+                    Platform e-learning interaktif terpadu untuk siswa kelas 4, 5, dan 6 Sekolah Dasar Swasta Al-Madani Pontianak Tenggara. Dilengkapi gamifikasi kuis, penguasaan kurikulum inti, modul coding & logika algoritma, serta portal monitoring orang tua dan pendidik.
+                </p>
+                <div class="footer-badges">
+                    <span class="footer-badge">🎓 Kurikulum Merdeka</span>
+                    <span class="footer-badge">💻 Literasi Digital & Coding</span>
+                    <span class="footer-badge">🛡️ Aman Ramah Anak</span>
+                </div>
+            </div>
+
+            <div class="footer-links-group">
+                <div class="footer-links-col">
+                    <h4 class="footer-col-title">Navigasi Utama</h4>
+                    <ul class="footer-links">
+                        <li><a href="{{ route('home') }}">Beranda Belajar</a></li>
+                        <li><a href="{{ route('learning.index') }}">Modul & Materi Inti</a></li>
+                        <li><a href="{{ route('quiz.daily') }}">Kuis Harian (10 Soal)</a></li>
+                        <li><a href="{{ route('gamification.index') }}">Gamifikasi & Mini Game</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links-col">
+                    <h4 class="footer-col-title">Portal Peran</h4>
+                    <ul class="footer-links">
+                        <li><a href="{{ route('login') }}">Masuk Akun (Login)</a></li>
+                        <li><a href="{{ route('teacher.index') }}">Dashboard Guru Pengajar</a></li>
+                        <li><a href="{{ route('parent.index') }}">Portal Pendamping Orang Tua</a></li>
+                        <li><a href="{{ route('erd') }}" target="_blank">Dokumentasi ERD Sistem</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links-col">
+                    <h4 class="footer-col-title">Kontak & Lokasi</h4>
+                    <ul class="footer-links contact-info">
+                        <li>📍 Pontianak Tenggara, Kalimantan Barat</li>
+                        <li>🏫 Sekolah Dasar Swasta Al-Madani</li>
+                        <li>⭐ Kelas 4, Kelas 5, Kelas 6 SD</li>
+                        <li>🕒 Jam Belajar: 07.00 - 14.30 WIB</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="footer-bottom-container">
+                <p>© {{ date('Y') }} SDS Al-Madani Pontianak Tenggara. Seluruh hak cipta dilindungi.</p>
+                <div class="footer-bottom-links">
+                    <span>Membentuk Generasi Cerdas, Tangguh & Berakhlakul Karimah</span>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <!-- Interactive Audio FX Engine & Global Script -->
     <script>
